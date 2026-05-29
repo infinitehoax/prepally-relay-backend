@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, Union, List
 
 
 class RelayRequest(BaseModel):
@@ -9,6 +9,6 @@ class RelayRequest(BaseModel):
         default="You are PrepAlly, an expert AI tutor. Explain clearly and step-by-step.",
         description="System instruction / persona for the AI",
     )
-    image_b64: Optional[str] = Field(default=None, description="Base64-encoded image (JPEG/PNG)")
+    image_b64: Optional[Union[str, List[str]]] = Field(default=None, description="Base64-encoded image (JPEG/PNG) or list of images")
     video_b64: Optional[str] = Field(default=None, description="Base64-encoded video (MP4/MOV)")
     audio_b64: Optional[str] = Field(default=None, description="Base64-encoded audio (M4A/MP3/WAV)")
