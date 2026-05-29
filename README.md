@@ -6,9 +6,9 @@ A high-performance **FastAPI** middleware that routes multimodal AI requests thr
 
 | Chain | Trigger | Priority |
 |-------|---------|----------|
-| A | Video uploaded | Gemini → Hyperbolic (frames) → Groq (frames) |
+| A | Video uploaded | Gemini → OpenRouter (frames) → Groq (frames) |
 | B | Audio uploaded | Gemini → Groq Whisper STT → Chain D |
-| C | Image uploaded | Gemini → Hyperbolic → Groq Vision |
+| C | Image uploaded | Gemini → OpenRouter → Groq Vision |
 | D | Text only | Gemini → OpenRouter → Groq Text → Mistral |
 
 ---
@@ -106,7 +106,6 @@ Returns `{ "status": "ok", "version": "1.0.0" }` — no auth required.
 | `RELAY_API_KEY` | Shared secret sent by Android client in `X-Relay-Key` header |
 | `GEMINI_API_KEY` | Google AI Studio key |
 | `GROQ_API_KEY` | Groq Cloud key |
-| `HYPERBOLIC_API_KEY` | Hyperbolic AI key |
 | `OPENROUTER_API_KEY` | OpenRouter key |
 | `MISTRAL_API_KEY` | Mistral AI key |
 
@@ -142,9 +141,8 @@ prepally-relay-backend/
     │   ├── base.py                 # Abstract BaseProvider
     │   ├── gemini_client.py        # Primary (all modalities)
     │   ├── groq_client.py          # Fallback 1 (STT + vision + text)
-    │   ├── hyperbolic_client.py    # Fallback 2 (vision/OCR)
-    │   ├── openrouter_client.py    # Fallback 3 (reasoning/text)
-    │   └── mistral_client.py       # Fallback 4 (text)
+    │   ├── openrouter_client.py    # Fallback 2 (reasoning/text/vision)
+    │   └── mistral_client.py       # Fallback 3 (text)
     └── utils/
         ├── audio_processor.py      # ffmpeg → 16kHz FLAC
         ├── video_processor.py      # ffmpeg → 4 keyframes

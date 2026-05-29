@@ -3,7 +3,7 @@ POST /api/v1/audio/tts
 
 Text-to-Speech endpoint stub.
 Primary: Gemini TTS (when available in the API).
-Fallback: Hyperbolic TTS → Edge-TTS (open-source).
+Fallback: OpenRouter TTS → Edge-TTS (open-source).
 
 Note: Extend this once a TTS provider is confirmed in your stack.
 """
