@@ -1,5 +1,5 @@
 """
-Mistral Provider — Fallback 4 (Final Text Safety Net).
+Mistral Provider — Position 4 (Final Text Safety Net).
 Model: mistral-large-latest
 SDK: mistralai  (pip install mistralai)
 """

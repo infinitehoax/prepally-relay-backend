@@ -18,9 +18,11 @@ from app.providers.groq_client import (
     groq_vision_provider,
     transcribe_audio_bytes,
 )
-from app.providers.hyperbolic_client import hyperbolic_vision_provider
 from app.providers.mistral_client import mistral_text_provider
-from app.providers.openrouter_client import openrouter_text_provider
+from app.providers.openrouter_client import (
+    openrouter_text_provider,
+    openrouter_vision_provider,
+)
 from app.schemas.requests import RelayRequest
 from app.schemas.responses import RelayResponse
 from app.services.fallback_manager import execute_with_fallback
@@ -57,7 +59,7 @@ async def route(request: RelayRequest) -> RelayResponse:
 async def _chain_video(request: RelayRequest) -> RelayResponse:
     """
     1. Gemini (native video)
-    2. Extract 4 frames → Hyperbolic (Qwen2.5-VL)
+    2. Extract 4 frames → OpenRouter Vision (Nemotron Nano)
     3. Extract 4 frames → Groq Vision (Llama 4 Scout)
     """
     from app.providers.base import BaseProvider
@@ -88,7 +90,7 @@ async def _chain_video(request: RelayRequest) -> RelayResponse:
     )
 
     result = await execute_with_fallback(
-        [hyperbolic_vision_provider, groq_vision_provider],
+        [openrouter_vision_provider, groq_vision_provider],
         frame_request,
     )
     return RelayResponse(**result)
@@ -133,11 +135,11 @@ async def _chain_audio(request: RelayRequest) -> RelayResponse:
 async def _chain_image(request: RelayRequest) -> RelayResponse:
     """
     1. Gemini
-    2. Hyperbolic (Qwen2.5-VL — great at OCR/maths)
+    2. OpenRouter Vision (Nemotron Nano)
     3. Groq Vision (Llama 4 Scout)
     """
     result = await execute_with_fallback(
-        [gemini_provider, hyperbolic_vision_provider, groq_vision_provider],
+        [gemini_provider, openrouter_vision_provider, groq_vision_provider],
         request,
     )
     return RelayResponse(**result)

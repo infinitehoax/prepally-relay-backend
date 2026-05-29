@@ -1,5 +1,5 @@
 """
-Groq Provider — Fallback 1.
+Groq Provider — Position 3 in Fallback Chains.
   • Audio  → whisper-large-v3-turbo  (STT, then re-routes to text chain)
   • Vision → meta-llama/llama-4-scout-17b-16e-instruct
   • Text   → llama-3.3-70b-versatile
@@ -53,7 +53,7 @@ class GroqVisionProvider(BaseProvider):
             model=VISION_MODEL,
             messages=messages,
             temperature=0.4,
-            max_completion_tokens=2048,
+            max_tokens=2048,
         )
         return response.choices[0].message.content
 
@@ -76,7 +76,7 @@ class GroqTextProvider(BaseProvider):
                 {"role": "user", "content": request.question},
             ],
             temperature=0.4,
-            max_completion_tokens=2048,
+            max_tokens=2048,
         )
         return response.choices[0].message.content
 
