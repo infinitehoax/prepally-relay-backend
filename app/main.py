@@ -58,6 +58,7 @@ def create_app() -> FastAPI:
 
     # ── Health check ──────────────────────────────────────────────────────────
     @app.get("/health", tags=["System"])
+    @app.get("/healthz", tags=["System"])
     async def health() -> dict:
         return {"status": "ok", "version": settings.APP_VERSION}
 
