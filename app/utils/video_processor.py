@@ -1,6 +1,6 @@
 """
 Video Preprocessor — extracts 4 evenly-spaced keyframes from a video.
-Used when Gemini Video fails and we need to pass images to Hyperbolic/Groq.
+Used when Gemini Video fails and we need to pass images to OpenRouter/Groq.
 Requires: ffmpeg installed and on PATH.
 """
 
