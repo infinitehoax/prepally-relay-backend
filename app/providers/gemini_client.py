@@ -17,7 +17,7 @@ from app.schemas.requests import RelayRequest
 _client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
 # Use gemini-2.5-flash which showed availability in diagnostics
-MODEL = "gemini-2.5-flash"
+MODEL = "gemini-3.5-flash"
 
 
 class GeminiProvider(BaseProvider):
