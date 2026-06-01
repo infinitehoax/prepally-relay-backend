@@ -40,7 +40,8 @@ async def execute_with_fallback(
             }
 
         except Exception as exc:
-            logger.error(f"[FAILURE] ✗ {provider.name} — {type(exc).__name__}: {exc}")
+            # Enhanced logging to capture exactly why it's falling back
+            logger.error(f"[FAILURE] ✗ {provider.name} — {type(exc).__name__}: {str(exc)[:200]}")
             continue
 
     logger.critical("[FATAL] All providers in chain exhausted.")

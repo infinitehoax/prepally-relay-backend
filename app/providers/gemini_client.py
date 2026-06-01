@@ -16,7 +16,8 @@ from app.schemas.requests import RelayRequest
 # Initialised once at import time; reused across requests
 _client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
-MODEL = "gemini-2.0-flash"   # upgrade to gemini-2.5-flash when GA
+# Use gemini-3.5-flash as per latest guide and successful verification
+MODEL = "gemini-3.5-flash"
 
 
 class GeminiProvider(BaseProvider):
@@ -55,7 +56,8 @@ class GeminiProvider(BaseProvider):
             temperature=0.4,
         )
 
-        response = _client.models.generate_content(
+        # Switched to aio (async) client to prevent blocking
+        response = await _client.aio.models.generate_content(
             model=MODEL,
             contents=parts,
             config=config,
