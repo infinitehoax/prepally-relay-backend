@@ -1,0 +1,5168 @@
+# Text generation
+
+The Gemini API can generate text output from text, images, video, and audio
+inputs.
+
+Here's a basic example:
+
+### Python
+
+    from google import genai
+
+    client = genai.Client()
+
+    response = client.models.generate_content(
+        model="gemini-3.5-flash",
+        contents="How does AI work?"
+    )
+    print(response.text)
+
+### JavaScript
+
+    import { GoogleGenAI } from "@google/genai";
+
+    const ai = new GoogleGenAI({});
+
+    async function main() {
+      const response = await ai.models.generateContent({
+        model: "gemini-3.5-flash",
+        contents: "How does AI work?",
+      });
+      console.log(response.text);
+    }
+
+    await main();
+
+### Go
+
+    package main
+
+    import (
+      "context"
+      "fmt"
+      "os"
+      "google.golang.org/genai"
+    )
+
+    func main() {
+
+      ctx := context.Background()
+      client, err := genai.NewClient(ctx, nil)
+      if err != nil {
+          log.Fatal(err)
+      }
+
+      result, _ := client.Models.GenerateContent(
+          ctx,
+          "gemini-3.5-flash",
+          genai.Text("Explain how AI works in a few words"),
+          nil,
+      )
+
+      fmt.Println(result.Text())
+    }
+
+### Java
+
+    import com.google.genai.Client;
+    import com.google.genai.types.GenerateContentResponse;
+
+    public class GenerateContentWithTextInput {
+      public static void main(String[] args) {
+
+        Client client = new Client();
+
+        GenerateContentResponse response =
+            client.models.generateContent("gemini-3.5-flash", "How does AI work?", null);
+
+        System.out.println(response.text());
+      }
+    }
+
+### REST
+
+    curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent" \
+      -H "x-goog-api-key: $GEMINI_API_KEY" \
+      -H 'Content-Type: application/json' \
+      -X POST \
+      -d '{
+        "contents": [
+          {
+            "parts": [
+              {
+                "text": "How does AI work?"
+              }
+            ]
+          }
+        ]
+      }'
+
+### Apps Script
+
+    // See https://developers.google.com/apps-script/guides/properties
+    // for instructions on how to set the API key.
+    const apiKey = PropertiesService.getScriptProperties().getProperty('GEMINI_API_KEY');
+
+    function main() {
+      const payload = {
+        contents: [
+          {
+            parts: [
+              { text: 'How AI does work?' },
+            ],
+          },
+        ],
+      };
+
+      const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent';
+      const options = {
+        method: 'POST',
+        contentType: 'application/json',
+        headers: {
+          'x-goog-api-key': apiKey,
+        },
+        payload: JSON.stringify(payload)
+      };
+
+      const response = UrlFetchApp.fetch(url, options);
+      const data = JSON.parse(response);
+      const content = data['candidates'][0]['content']['parts'][0]['text'];
+      console.log(content);
+    }
+
+## Thinking with Gemini
+
+Gemini models often have ["thinking"](https://ai.google.dev/gemini-api/docs/thinking) enabled by default
+which allows the model to reason before responding to a request.
+
+Each model supports different thinking configurations which gives you control
+over cost, latency, and intelligence. For more details, see the
+[thinking guide](https://ai.google.dev/gemini-api/docs/thinking#set-budget).
+
+### Python
+
+    from google import genai
+    from google.genai import types
+
+    client = genai.Client()
+
+    response = client.models.generate_content(
+        model="gemini-3.5-flash",
+        contents="How does AI work?",
+        config=types.GenerateContentConfig(
+            thinking_config=types.ThinkingConfig(thinking_level="low")
+        ),
+    )
+    print(response.text)
+
+### JavaScript
+
+    import { GoogleGenAI, ThinkingLevel } from "@google/genai";
+
+    const ai = new GoogleGenAI({});
+
+    async function main() {
+      const response = await ai.models.generateContent({
+        model: "gemini-3.5-flash",
+        contents: "How does AI work?",
+        config: {
+          thinkingConfig: {
+            thinkingLevel: ThinkingLevel.LOW,
+          },
+        }
+      });
+      console.log(response.text);
+    }
+
+    await main();
+
+### Go
+
+    package main
+
+    import (
+      "context"
+      "fmt"
+      "os"
+      "google.golang.org/genai"
+    )
+
+    func main() {
+
+      ctx := context.Background()
+      client, err := genai.NewClient(ctx, nil)
+      if err != nil {
+          log.Fatal(err)
+      }
+
+      thinkingLevelVal := "low"
+
+      result, _ := client.Models.GenerateContent(
+          ctx,
+          "gemini-3.5-flash",
+          genai.Text("How does AI work?"),
+          &genai.GenerateContentConfig{
+            ThinkingConfig: &genai.ThinkingConfig{
+                ThinkingLevel: &thinkingLevelVal,
+            },
+          }
+      )
+
+      fmt.Println(result.Text())
+    }
+
+### Java
+
+    import com.google.genai.Client;
+    import com.google.genai.types.GenerateContentConfig;
+    import com.google.genai.types.GenerateContentResponse;
+    import com.google.genai.types.ThinkingConfig;
+    import com.google.genai.types.ThinkingLevel;
+
+    public class GenerateContentWithThinkingConfig {
+      public static void main(String[] args) {
+
+        Client client = new Client();
+
+        GenerateContentConfig config =
+            GenerateContentConfig.builder()
+                .thinkingConfig(ThinkingConfig.builder().thinkingLevel(new ThinkingLevel("low")))
+                .build();
+
+        GenerateContentResponse response =
+            client.models.generateContent("gemini-3.5-flash", "How does AI work?", config);
+
+        System.out.println(response.text());
+      }
+    }
+
+### REST
+
+    curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent" \
+      -H "x-goog-api-key: $GEMINI_API_KEY" \
+      -H 'Content-Type: application/json' \
+      -X POST \
+      -d '{
+        "contents": [
+          {
+            "parts": [
+              {
+                "text": "How does AI work?"
+              }
+            ]
+          }
+        ],
+        "generationConfig": {
+          "thinkingConfig": {
+            "thinkingLevel": "low"
+          }
+        }
+      }'
+
+### Apps Script
+
+    // See https://developers.google.com/apps-script/guides/properties
+    // for instructions on how to set the API key.
+    const apiKey = PropertiesService.getScriptProperties().getProperty('GEMINI_API_KEY');
+
+    function main() {
+      const payload = {
+        contents: [
+          {
+            parts: [
+              { text: 'How AI does work?' },
+            ],
+          },
+        ],
+        generationConfig: {
+          thinkingConfig: {
+            thinkingLevel: 'low'
+          }
+        }
+      };
+
+      const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent';
+      const options = {
+        method: 'POST',
+        contentType: 'application/json',
+        headers: {
+          'x-goog-api-key': apiKey,
+        },
+        payload: JSON.stringify(payload)
+      };
+
+      const response = UrlFetchApp.fetch(url, options);
+      const data = JSON.parse(response);
+      const content = data['candidates'][0]['content']['parts'][0]['text'];
+      console.log(content);
+    }
+
+## System instructions and other configurations
+
+You can guide the behavior of Gemini models with system instructions. To do so,
+pass a [`GenerateContentConfig`](https://ai.google.dev/api/generate-content#v1beta.GenerationConfig)
+object.
+
+### Python
+
+    from google import genai
+    from google.genai import types
+
+    client = genai.Client()
+
+    response = client.models.generate_content(
+        model="gemini-3.5-flash",
+        config=types.GenerateContentConfig(
+            system_instruction="You are a cat. Your name is Neko."),
+        contents="Hello there"
+    )
+
+    print(response.text)
+
+### JavaScript
+
+    import { GoogleGenAI } from "@google/genai";
+
+    const ai = new GoogleGenAI({});
+
+    async function main() {
+      const response = await ai.models.generateContent({
+        model: "gemini-3.5-flash",
+        contents: "Hello there",
+        config: {
+          systemInstruction: "You are a cat. Your name is Neko.",
+        },
+      });
+      console.log(response.text);
+    }
+
+    await main();
+
+### Go
+
+    package main
+
+    import (
+      "context"
+      "fmt"
+      "os"
+      "google.golang.org/genai"
+    )
+
+    func main() {
+
+      ctx := context.Background()
+      client, err := genai.NewClient(ctx, nil)
+      if err != nil {
+          log.Fatal(err)
+      }
+
+      config := &genai.GenerateContentConfig{
+          SystemInstruction: genai.NewContentFromText("You are a cat. Your name is Neko.", genai.RoleUser),
+      }
+
+      result, _ := client.Models.GenerateContent(
+          ctx,
+          "gemini-3.5-flash",
+          genai.Text("Hello there"),
+          config,
+      )
+
+      fmt.Println(result.Text())
+    }
+
+### Java
+
+    import com.google.genai.Client;
+    import com.google.genai.types.Content;
+    import com.google.genai.types.GenerateContentConfig;
+    import com.google.genai.types.GenerateContentResponse;
+    import com.google.genai.types.Part;
+
+    public class GenerateContentWithSystemInstruction {
+      public static void main(String[] args) {
+
+        Client client = new Client();
+
+        GenerateContentConfig config =
+            GenerateContentConfig.builder()
+                .systemInstruction(
+                    Content.fromParts(Part.fromText("You are a cat. Your name is Neko.")))
+                .build();
+
+        GenerateContentResponse response =
+            client.models.generateContent("gemini-3.5-flash", "Hello there", config);
+
+        System.out.println(response.text());
+      }
+    }
+
+### REST
+
+    curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent" \
+      -H "x-goog-api-key: $GEMINI_API_KEY" \
+      -H 'Content-Type: application/json' \
+      -d '{
+        "system_instruction": {
+          "parts": [
+            {
+              "text": "You are a cat. Your name is Neko."
+            }
+          ]
+        },
+        "contents": [
+          {
+            "parts": [
+              {
+                "text": "Hello there"
+              }
+            ]
+          }
+        ]
+      }'
+
+### Apps Script
+
+    // See https://developers.google.com/apps-script/guides/properties
+    // for instructions on how to set the API key.
+    const apiKey = PropertiesService.getScriptProperties().getProperty('GEMINI_API_KEY');
+
+    function main() {
+      const systemInstruction = {
+        parts: [{
+          text: 'You are a cat. Your name is Neko.'
+        }]
+      };
+
+      const payload = {
+        systemInstruction,
+        contents: [
+          {
+            parts: [
+              { text: 'Hello there' },
+            ],
+          },
+        ],
+      };
+
+      const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent';
+      const options = {
+        method: 'POST',
+        contentType: 'application/json',
+        headers: {
+          'x-goog-api-key': apiKey,
+        },
+        payload: JSON.stringify(payload)
+      };
+
+      const response = UrlFetchApp.fetch(url, options);
+      const data = JSON.parse(response);
+      const content = data['candidates'][0]['content']['parts'][0]['text'];
+      console.log(content);
+    }
+
+The [`GenerateContentConfig`](https://ai.google.dev/api/generate-content#v1beta.GenerationConfig)
+object also lets you override default generation parameters, such as
+[temperature](https://ai.google.dev/api/generate-content#v1beta.GenerationConfig).
+
+> [!NOTE]
+> When using Gemini 3 models, we strongly recommend keeping the `temperature` at its default value of 1.0. Changing the temperature (setting it below 1.0) may lead to unexpected behavior, such as looping or degraded performance, particularly in complex mathematical or reasoning tasks.
+
+### Python
+
+    from google import genai
+    from google.genai import types
+
+    client = genai.Client()
+
+    response = client.models.generate_content(
+        model="gemini-3.5-flash",
+        contents=["Explain how AI works"],
+        config=types.GenerateContentConfig(
+            temperature=0.1
+        )
+    )
+    print(response.text)
+
+### JavaScript
+
+    import { GoogleGenAI } from "@google/genai";
+
+    const ai = new GoogleGenAI({});
+
+    async function main() {
+      const response = await ai.models.generateContent({
+        model: "gemini-3.5-flash",
+        contents: "Explain how AI works",
+        config: {
+          temperature: 0.1,
+        },
+      });
+      console.log(response.text);
+    }
+
+    await main();
+
+### Go
+
+    package main
+
+    import (
+      "context"
+      "fmt"
+      "os"
+      "google.golang.org/genai"
+    )
+
+    func main() {
+
+      ctx := context.Background()
+      client, err := genai.NewClient(ctx, nil)
+      if err != nil {
+          log.Fatal(err)
+      }
+
+      temp := float32(0.9)
+      topP := float32(0.5)
+      topK := float32(20.0)
+
+      config := &genai.GenerateContentConfig{
+        Temperature:       &temp,
+        TopP:              &topP,
+        TopK:              &topK,
+        ResponseMIMEType:  "application/json",
+      }
+
+      result, _ := client.Models.GenerateContent(
+        ctx,
+        "gemini-3.5-flash",
+        genai.Text("What is the average size of a swallow?"),
+        config,
+      )
+
+      fmt.Println(result.Text())
+    }
+
+### Java
+
+    import com.google.genai.Client;
+    import com.google.genai.types.GenerateContentConfig;
+    import com.google.genai.types.GenerateContentResponse;
+
+    public class GenerateContentWithConfig {
+      public static void main(String[] args) {
+
+        Client client = new Client();
+
+        GenerateContentConfig config = GenerateContentConfig.builder().temperature(0.1f).build();
+
+        GenerateContentResponse response =
+            client.models.generateContent("gemini-3.5-flash", "Explain how AI works", config);
+
+        System.out.println(response.text());
+      }
+    }
+
+### REST
+
+    curl https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent \
+      -H "x-goog-api-key: $GEMINI_API_KEY" \
+      -H 'Content-Type: application/json' \
+      -X POST \
+      -d '{
+        "contents": [
+          {
+            "parts": [
+              {
+                "text": "Explain how AI works"
+              }
+            ]
+          }
+        ],
+        "generationConfig": {
+          "stopSequences": [
+            "Title"
+          ],
+          "temperature": 1.0,
+          "topP": 0.8,
+          "topK": 10
+        }
+      }'
+
+### Apps Script
+
+    // See https://developers.google.com/apps-script/guides/properties
+    // for instructions on how to set the API key.
+    const apiKey = PropertiesService.getScriptProperties().getProperty('GEMINI_API_KEY');
+
+    function main() {
+      const generationConfig = {
+        temperature: 1,
+        topP: 0.95,
+        topK: 40,
+        responseFormat: { text: { mimeType: "text/plain" } },
+      };
+
+      const payload = {
+        generationConfig,
+        contents: [
+          {
+            parts: [
+              { text: 'Explain how AI works in a few words' },
+            ],
+          },
+        ],
+      };
+
+      const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent';
+      const options = {
+        method: 'POST',
+        contentType: 'application/json',
+        headers: {
+          'x-goog-api-key': apiKey,
+        },
+        payload: JSON.stringify(payload)
+      };
+
+      const response = UrlFetchApp.fetch(url, options);
+      const data = JSON.parse(response);
+      const content = data['candidates'][0]['content']['parts'][0]['text'];
+      console.log(content);
+    }
+
+Refer to the [`GenerateContentConfig`](https://ai.google.dev/api/generate-content#v1beta.GenerationConfig)
+in our API reference for a complete list of configurable parameters and their
+descriptions.
+
+## Multimodal inputs
+
+The Gemini API supports multimodal inputs, allowing you to combine text with
+media files. The following example demonstrates providing an image:
+
+### Python
+
+    from PIL import Image
+    from google import genai
+
+    client = genai.Client()
+
+    image = Image.open("/path/to/organ.png")
+    response = client.models.generate_content(
+        model="gemini-3.5-flash",
+        contents=[image, "Tell me about this instrument"]
+    )
+    print(response.text)
+
+### JavaScript
+
+    import {
+      GoogleGenAI,
+      createUserContent,
+      createPartFromUri,
+    } from "@google/genai";
+
+    const ai = new GoogleGenAI({});
+
+    async function main() {
+      const image = await ai.files.upload({
+        file: "/path/to/organ.png",
+      });
+      const response = await ai.models.generateContent({
+        model: "gemini-3.5-flash",
+        contents: [
+          createUserContent([
+            "Tell me about this instrument",
+            createPartFromUri(image.uri, image.mimeType),
+          ]),
+        ],
+      });
+      console.log(response.text);
+    }
+
+    await main();
+
+### Go
+
+    package main
+
+    import (
+      "context"
+      "fmt"
+      "os"
+      "google.golang.org/genai"
+    )
+
+    func main() {
+
+      ctx := context.Background()
+      client, err := genai.NewClient(ctx, nil)
+      if err != nil {
+          log.Fatal(err)
+      }
+
+      imagePath := "/path/to/organ.jpg"
+      imgData, _ := os.ReadFile(imagePath)
+
+      parts := []*genai.Part{
+          genai.NewPartFromText("Tell me about this instrument"),
+          &genai.Part{
+              InlineData: &genai.Blob{
+                  MIMEType: "image/jpeg",
+                  Data:     imgData,
+              },
+          },
+      }
+
+      contents := []*genai.Content{
+          genai.NewContentFromParts(parts, genai.RoleUser),
+      }
+
+      result, _ := client.Models.GenerateContent(
+          ctx,
+          "gemini-3.5-flash",
+          contents,
+          nil,
+      )
+
+      fmt.Println(result.Text())
+    }
+
+### Java
+
+    import com.google.genai.Client;
+    import com.google.genai.Content;
+    import com.google.genai.types.GenerateContentResponse;
+    import com.google.genai.types.Part;
+
+    public class GenerateContentWithMultiModalInputs {
+      public static void main(String[] args) {
+
+        Client client = new Client();
+
+        Content content =
+          Content.fromParts(
+              Part.fromText("Tell me about this instrument"),
+              Part.fromUri("/path/to/organ.jpg", "image/jpeg"));
+
+        GenerateContentResponse response =
+            client.models.generateContent("gemini-3.5-flash", content, null);
+
+        System.out.println(response.text());
+      }
+    }
+
+### REST
+
+    # Use a temporary file to hold the base64 encoded image data
+    TEMP_B64=$(mktemp)
+    trap 'rm -f "$TEMP_B64"' EXIT
+    base64 $B64FLAGS $IMG_PATH > "$TEMP_B64"
+
+    # Use a temporary file to hold the JSON payload
+    TEMP_JSON=$(mktemp)
+    trap 'rm -f "$TEMP_JSON"' EXIT
+
+    cat > "$TEMP_JSON" << EOF
+    {
+      "contents": [
+        {
+          "parts": [
+            {
+              "text": "Tell me about this instrument"
+            },
+            {
+              "inline_data": {
+                "mime_type": "image/jpeg",
+                "data": "$(cat "$TEMP_B64")"
+              }
+            }
+          ]
+        }
+      ]
+    }
+    EOF
+
+    curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent" \
+      -H "x-goog-api-key: $GEMINI_API_KEY" \
+      -H 'Content-Type: application/json' \
+      -X POST \
+      -d "@$TEMP_JSON"
+
+### Apps Script
+
+    // See https://developers.google.com/apps-script/guides/properties
+    // for instructions on how to set the API key.
+    const apiKey = PropertiesService.getScriptProperties().getProperty('GEMINI_API_KEY');
+
+    function main() {
+      const imageUrl = 'http://image/url';
+      const image = getImageData(imageUrl);
+      const payload = {
+        contents: [
+          {
+            parts: [
+              { image },
+              { text: 'Tell me about this instrument' },
+            ],
+          },
+        ],
+      };
+
+      const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent';
+      const options = {
+        method: 'POST',
+        contentType: 'application/json',
+        headers: {
+          'x-goog-api-key': apiKey,
+        },
+        payload: JSON.stringify(payload)
+      };
+
+      const response = UrlFetchApp.fetch(url, options);
+      const data = JSON.parse(response);
+      const content = data['candidates'][0]['content']['parts'][0]['text'];
+      console.log(content);
+    }
+
+    function getImageData(url) {
+      const blob = UrlFetchApp.fetch(url).getBlob();
+
+      return {
+        mimeType: blob.getContentType(),
+        data: Utilities.base64Encode(blob.getBytes())
+      };
+    }
+
+For alternative methods of providing images and more advanced image processing,
+see our [image understanding guide](https://ai.google.dev/gemini-api/docs/image-understanding).
+The API also supports [document](https://ai.google.dev/gemini-api/docs/document-processing), [video](https://ai.google.dev/gemini-api/docs/video-understanding), and [audio](https://ai.google.dev/gemini-api/docs/audio)
+inputs and understanding.
+
+## Streaming responses
+
+By default, the model returns a response only after the entire generation
+process is complete.
+
+For more fluid interactions, use streaming to receive [`GenerateContentResponse`](https://ai.google.dev/api/generate-content#v1beta.GenerateContentResponse) instances incrementally
+as they're generated.
+
+### Python
+
+    from google import genai
+
+    client = genai.Client()
+
+    response = client.models.generate_content_stream(
+        model="gemini-3.5-flash",
+        contents=["Explain how AI works"]
+    )
+    for chunk in response:
+        print(chunk.text, end="")
+
+### JavaScript
+
+    import { GoogleGenAI } from "@google/genai";
+
+    const ai = new GoogleGenAI({});
+
+    async function main() {
+      const response = await ai.models.generateContentStream({
+        model: "gemini-3.5-flash",
+        contents: "Explain how AI works",
+      });
+
+      for await (const chunk of response) {
+        console.log(chunk.text);
+      }
+    }
+
+    await main();
+
+### Go
+
+    package main
+
+    import (
+      "context"
+      "fmt"
+      "os"
+      "google.golang.org/genai"
+    )
+
+    func main() {
+
+      ctx := context.Background()
+      client, err := genai.NewClient(ctx, nil)
+      if err != nil {
+          log.Fatal(err)
+      }
+
+      stream := client.Models.GenerateContentStream(
+          ctx,
+          "gemini-3.5-flash",
+          genai.Text("Write a story about a magic backpack."),
+          nil,
+      )
+
+      for chunk, _ := range stream {
+          part := chunk.Candidates[0].Content.Parts[0]
+          fmt.Print(part.Text)
+      }
+    }
+
+### Java
+
+    import com.google.genai.Client;
+    import com.google.genai.ResponseStream;
+    import com.google.genai.types.GenerateContentResponse;
+
+    public class GenerateContentStream {
+      public static void main(String[] args) {
+
+        Client client = new Client();
+
+        ResponseStream<GenerateContentResponse> responseStream =
+          client.models.generateContentStream(
+              "gemini-3.5-flash", "Write a story about a magic backpack.", null);
+
+        for (GenerateContentResponse res : responseStream) {
+          System.out.print(res.text());
+        }
+
+        // To save resources and avoid connection leaks, it is recommended to close the response
+        // stream after consumption (or using try block to get the response stream).
+        responseStream.close();
+      }
+    }
+
+### REST
+
+    curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:streamGenerateContent?alt=sse" \
+      -H "x-goog-api-key: $GEMINI_API_KEY" \
+      -H 'Content-Type: application/json' \
+      --no-buffer \
+      -d '{
+        "contents": [
+          {
+            "parts": [
+              {
+                "text": "Explain how AI works"
+              }
+            ]
+          }
+        ]
+      }'
+
+### Apps Script
+
+    // See https://developers.google.com/apps-script/guides/properties
+    // for instructions on how to set the API key.
+    const apiKey = PropertiesService.getScriptProperties().getProperty('GEMINI_API_KEY');
+
+    function main() {
+      const payload = {
+        contents: [
+          {
+            parts: [
+              { text: 'Explain how AI works' },
+            ],
+          },
+        ],
+      };
+
+      const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:streamGenerateContent';
+      const options = {
+        method: 'POST',
+        contentType: 'application/json',
+        headers: {
+          'x-goog-api-key': apiKey,
+        },
+        payload: JSON.stringify(payload)
+      };
+
+      const response = UrlFetchApp.fetch(url, options);
+      const data = JSON.parse(response);
+      const content = data['candidates'][0]['content']['parts'][0]['text'];
+      console.log(content);
+    }
+
+## Multi-turn conversations (chat)
+
+Our SDKs provide functionality to collect multiple rounds of prompts and
+responses into a chat, giving you an easy way to keep track of the conversation
+history.
+
+> [!NOTE]
+> **Note:** Chat functionality is only implemented as part of the SDKs. Behind the scenes, it still uses the [`generateContent`](https://ai.google.dev/api/generate-content#method:-models.generatecontent) API. For multi-turn conversations, the full conversation history is sent to the model with each follow-up turn.
+
+### Python
+
+    from google import genai
+
+    client = genai.Client()
+    chat = client.chats.create(model="gemini-3.5-flash")
+
+    response = chat.send_message("I have 2 dogs in my house.")
+    print(response.text)
+
+    response = chat.send_message("How many paws are in my house?")
+    print(response.text)
+
+    for message in chat.get_history():
+        print(f'role - {message.role}',end=": ")
+        print(message.parts[0].text)
+
+### JavaScript
+
+    import { GoogleGenAI } from "@google/genai";
+
+    const ai = new GoogleGenAI({});
+
+    async function main() {
+      const chat = ai.chats.create({
+        model: "gemini-3.5-flash",
+        history: [
+          {
+            role: "user",
+            parts: [{ text: "Hello" }],
+          },
+          {
+            role: "model",
+            parts: [{ text: "Great to meet you. What would you like to know?" }],
+          },
+        ],
+      });
+
+      const response1 = await chat.sendMessage({
+        message: "I have 2 dogs in my house.",
+      });
+      console.log("Chat response 1:", response1.text);
+
+      const response2 = await chat.sendMessage({
+        message: "How many paws are in my house?",
+      });
+      console.log("Chat response 2:", response2.text);
+    }
+
+    await main();
+
+### Go
+
+    package main
+
+    import (
+      "context"
+      "fmt"
+      "os"
+      "google.golang.org/genai"
+    )
+
+    func main() {
+
+      ctx := context.Background()
+      client, err := genai.NewClient(ctx, nil)
+      if err != nil {
+          log.Fatal(err)
+      }
+
+      history := []*genai.Content{
+          genai.NewContentFromText("Hi nice to meet you! I have 2 dogs in my house.", genai.RoleUser),
+          genai.NewContentFromText("Great to meet you. What would you like to know?", genai.RoleModel),
+      }
+
+      chat, _ := client.Chats.Create(ctx, "gemini-3.5-flash", nil, history)
+      res, _ := chat.SendMessage(ctx, genai.Part{Text: "How many paws are in my house?"})
+
+      if len(res.Candidates) > 0 {
+          fmt.Println(res.Candidates[0].Content.Parts[0].Text)
+      }
+    }
+
+### Java
+
+    import com.google.genai.Chat;
+    import com.google.genai.Client;
+    import com.google.genai.types.Content;
+    import com.google.genai.types.GenerateContentResponse;
+
+    public class MultiTurnConversation {
+      public static void main(String[] args) {
+
+        Client client = new Client();
+        Chat chatSession = client.chats.create("gemini-3.5-flash");
+
+        GenerateContentResponse response =
+            chatSession.sendMessage("I have 2 dogs in my house.");
+        System.out.println("First response: " + response.text());
+
+        response = chatSession.sendMessage("How many paws are in my house?");
+        System.out.println("Second response: " + response.text());
+
+        // Get the history of the chat session.
+        // Passing 'true' to getHistory() returns the curated history, which excludes
+        // empty or invalid parts.
+        // Passing 'false' here would return the comprehensive history, including
+        // empty or invalid parts.
+        ImmutableList<Content> history = chatSession.getHistory(true);
+        System.out.println("History: " + history);
+      }
+    }
+
+### REST
+
+    curl https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent \
+      -H "x-goog-api-key: $GEMINI_API_KEY" \
+      -H 'Content-Type: application/json' \
+      -X POST \
+      -d '{
+        "contents": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "text": "Hello"
+              }
+            ]
+          },
+          {
+            "role": "model",
+            "parts": [
+              {
+                "text": "Great to meet you. What would you like to know?"
+              }
+            ]
+          },
+          {
+            "role": "user",
+            "parts": [
+              {
+                "text": "I have two dogs in my house. How many paws are in my house?"
+              }
+            ]
+          }
+        ]
+      }'
+
+### Apps Script
+
+    // See https://developers.google.com/apps-script/guides/properties
+    // for instructions on how to set the API key.
+    const apiKey = PropertiesService.getScriptProperties().getProperty('GEMINI_API_KEY');
+
+    function main() {
+      const payload = {
+        contents: [
+          {
+            role: 'user',
+            parts: [
+              { text: 'Hello' },
+            ],
+          },
+          {
+            role: 'model',
+            parts: [
+              { text: 'Great to meet you. What would you like to know?' },
+            ],
+          },
+          {
+            role: 'user',
+            parts: [
+              { text: 'I have two dogs in my house. How many paws are in my house?' },
+            ],
+          },
+        ],
+      };
+
+      const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent';
+      const options = {
+        method: 'POST',
+        contentType: 'application/json',
+        headers: {
+          'x-goog-api-key': apiKey,
+        },
+        payload: JSON.stringify(payload)
+      };
+
+      const response = UrlFetchApp.fetch(url, options);
+      const data = JSON.parse(response);
+      const content = data['candidates'][0]['content']['parts'][0]['text'];
+      console.log(content);
+    }
+
+Streaming can also be used for multi-turn conversations.
+
+### Python
+
+    from google import genai
+
+    client = genai.Client()
+    chat = client.chats.create(model="gemini-3.5-flash")
+
+    response = chat.send_message_stream("I have 2 dogs in my house.")
+    for chunk in response:
+        print(chunk.text, end="")
+
+    response = chat.send_message_stream("How many paws are in my house?")
+    for chunk in response:
+        print(chunk.text, end="")
+
+    for message in chat.get_history():
+        print(f'role - {message.role}', end=": ")
+        print(message.parts[0].text)
+
+### JavaScript
+
+    import { GoogleGenAI } from "@google/genai";
+
+    const ai = new GoogleGenAI({});
+
+    async function main() {
+      const chat = ai.chats.create({
+        model: "gemini-3.5-flash",
+        history: [
+          {
+            role: "user",
+            parts: [{ text: "Hello" }],
+          },
+          {
+            role: "model",
+            parts: [{ text: "Great to meet you. What would you like to know?" }],
+          },
+        ],
+      });
+
+      const stream1 = await chat.sendMessageStream({
+        message: "I have 2 dogs in my house.",
+      });
+      for await (const chunk of stream1) {
+        console.log(chunk.text);
+        console.log("_".repeat(80));
+      }
+
+      const stream2 = await chat.sendMessageStream({
+        message: "How many paws are in my house?",
+      });
+      for await (const chunk of stream2) {
+        console.log(chunk.text);
+        console.log("_".repeat(80));
+      }
+    }
+
+    await main();
+
+### Go
+
+    package main
+
+    import (
+      "context"
+      "fmt"
+      "os"
+      "google.golang.org/genai"
+    )
+
+    func main() {
+
+      ctx := context.Background()
+      client, err := genai.NewClient(ctx, nil)
+      if err != nil {
+          log.Fatal(err)
+      }
+
+      history := []*genai.Content{
+          genai.NewContentFromText("Hi nice to meet you! I have 2 dogs in my house.", genai.RoleUser),
+          genai.NewContentFromText("Great to meet you. What would you like to know?", genai.RoleModel),
+      }
+
+      chat, _ := client.Chats.Create(ctx, "gemini-3.5-flash", nil, history)
+      stream := chat.SendMessageStream(ctx, genai.Part{Text: "How many paws are in my house?"})
+
+      for chunk, _ := range stream {
+          part := chunk.Candidates[0].Content.Parts[0]
+          fmt.Print(part.Text)
+      }
+    }
+
+### Java
+
+    import com.google.genai.Chat;
+    import com.google.genai.Client;
+    import com.google.genai.ResponseStream;
+    import com.google.genai.types.GenerateContentResponse;
+
+    public class MultiTurnConversationWithStreaming {
+      public static void main(String[] args) {
+
+        Client client = new Client();
+        Chat chatSession = client.chats.create("gemini-3.5-flash");
+
+        ResponseStream<GenerateContentResponse> responseStream =
+            chatSession.sendMessageStream("I have 2 dogs in my house.", null);
+
+        for (GenerateContentResponse response : responseStream) {
+          System.out.print(response.text());
+        }
+
+        responseStream = chatSession.sendMessageStream("How many paws are in my house?", null);
+
+        for (GenerateContentResponse response : responseStream) {
+          System.out.print(response.text());
+        }
+
+        // Get the history of the chat session. History is added after the stream
+        // is consumed and includes the aggregated response from the stream.
+        System.out.println("History: " + chatSession.getHistory(false));
+      }
+    }
+
+### REST
+
+    curl https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:streamGenerateContent?alt=sse \
+      -H "x-goog-api-key: $GEMINI_API_KEY" \
+      -H 'Content-Type: application/json' \
+      -X POST \
+      -d '{
+        "contents": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "text": "Hello"
+              }
+            ]
+          },
+          {
+            "role": "model",
+            "parts": [
+              {
+                "text": "Great to meet you. What would you like to know?"
+              }
+            ]
+          },
+          {
+            "role": "user",
+            "parts": [
+              {
+                "text": "I have two dogs in my house. How many paws are in my house?"
+              }
+            ]
+          }
+        ]
+      }'
+
+### Apps Script
+
+    // See https://developers.google.com/apps-script/guides/properties
+    // for instructions on how to set the API key.
+    const apiKey = PropertiesService.getScriptProperties().getProperty('GEMINI_API_KEY');
+
+    function main() {
+      const payload = {
+        contents: [
+          {
+            role: 'user',
+            parts: [
+              { text: 'Hello' },
+            ],
+          },
+          {
+            role: 'model',
+            parts: [
+              { text: 'Great to meet you. What would you like to know?' },
+            ],
+          },
+          {
+            role: 'user',
+            parts: [
+              { text: 'I have two dogs in my house. How many paws are in my house?' },
+            ],
+          },
+        ],
+      };
+
+      const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:streamGenerateContent';
+      const options = {
+        method: 'POST',
+        contentType: 'application/json',
+        headers: {
+          'x-goog-api-key': apiKey,
+        },
+        payload: JSON.stringify(payload)
+      };
+
+      const response = UrlFetchApp.fetch(url, options);
+      const data = JSON.parse(response);
+      const content = data['candidates'][0]['content']['parts'][0]['text'];
+      console.log(content);
+    }
+
+## Prompting tips
+
+Consult our [prompt engineering guide](https://ai.google.dev/gemini/docs/prompting-strategies) for
+suggestions on getting the most out of Gemini.
+
+## What's next
+
+- Try [Gemini in Google AI Studio](https://aistudio.google.com).
+- Experiment with [structured outputs](https://ai.google.dev/gemini-api/docs/structured-output) for JSON-like responses.
+- Explore Gemini's [image](https://ai.google.dev/gemini-api/docs/image-understanding), [video](https://ai.google.dev/gemini-api/docs/video-understanding), [audio](https://ai.google.dev/gemini-api/docs/audio) and [document](https://ai.google.dev/gemini-api/docs/document-processing) understanding capabilities.
+- Learn about multimodal [file prompting strategies](https://ai.google.dev/gemini-api/docs/files#prompt-guide).
+
+---
+
+
+# Image understanding
+
+Gemini models are built to be multimodal from the ground up, unlocking a wide
+range of image processing and computer vision tasks including but not limited to
+image captioning, classification, and visual question answering without having
+to train specialized ML models.
+
+In addition to their general multimodal capabilities, Gemini models offer
+**enhanced accuracy** for specific use cases like [object detection](https://ai.google.dev/gemini-api/docs/image-understanding#object-detection), through additional
+training.
+
+## Passing images to Gemini
+
+You can provide images as input to Gemini using two methods:
+
+- [Passing inline image data](https://ai.google.dev/gemini-api/docs/image-understanding#inline-image): Ideal for smaller files (total request size less than 20MB, including prompts).
+- [Uploading images using the File API](https://ai.google.dev/gemini-api/docs/image-understanding#upload-image): Recommended for larger files or for reusing images across multiple requests.
+
+### Passing inline image data
+
+You can pass inline image data in the
+request to `generateContent`. You can provide image data as Base64 encoded
+strings or by reading local files directly (depending on the language).
+
+The following example shows how to read an image from a local file and pass
+it to `generateContent` API for processing.
+
+### Python
+
+      from google import genai
+      from google.genai import types
+
+      with open('path/to/small-sample.jpg', 'rb') as f:
+          image_bytes = f.read()
+
+      client = genai.Client()
+      response = client.models.generate_content(
+        model='gemini-3.5-flash',
+        contents=[
+          types.Part.from_bytes(
+            data=image_bytes,
+            mime_type='image/jpeg',
+          ),
+          'Caption this image.'
+        ]
+      )
+
+      print(response.text)
+
+### JavaScript
+
+    import { GoogleGenAI } from "@google/genai";
+    import * as fs from "node:fs";
+
+    const ai = new GoogleGenAI({});
+    const base64ImageFile = fs.readFileSync("path/to/small-sample.jpg", {
+      encoding: "base64",
+    });
+
+    const contents = [
+      {
+        inlineData: {
+          mimeType: "image/jpeg",
+          data: base64ImageFile,
+        },
+      },
+      { text: "Caption this image." },
+    ];
+
+    const response = await ai.models.generateContent({
+      model: "gemini-3.5-flash",
+      contents: contents,
+    });
+    console.log(response.text);
+
+### Go
+
+    bytes, _ := os.ReadFile("path/to/small-sample.jpg")
+
+    parts := []*genai.Part{
+      genai.NewPartFromBytes(bytes, "image/jpeg"),
+      genai.NewPartFromText("Caption this image."),
+    }
+
+    contents := []*genai.Content{
+      genai.NewContentFromParts(parts, genai.RoleUser),
+    }
+
+    result, _ := client.Models.GenerateContent(
+      ctx,
+      "gemini-3.5-flash",
+      contents,
+      nil,
+    )
+
+    fmt.Println(result.Text())
+
+### REST
+
+    IMG_PATH="/path/to/your/image1.jpg"
+
+    if [[ "$(base64 --version 2>&1)" = *"FreeBSD"* ]]; then
+    B64FLAGS="--input"
+    else
+    B64FLAGS="-w0"
+    fi
+
+    curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent" \
+    -H "x-goog-api-key: $GEMINI_API_KEY" \
+    -H 'Content-Type: application/json' \
+    -X POST \
+    -d '{
+        "contents": [{
+        "parts":[
+            {
+                "inline_data": {
+                "mime_type":"image/jpeg",
+                "data": "'"$(base64 $B64FLAGS $IMG_PATH)"'"
+                }
+            },
+            {"text": "Caption this image."},
+        ]
+        }]
+    }' 2> /dev/null
+
+You can also fetch an image from a URL, convert it to bytes, and pass it to
+`generateContent` as shown in the following examples.
+
+### Python
+
+    from google import genai
+    from google.genai import types
+
+    import requests
+
+    image_path = "https://goo.gle/instrument-img"
+    image_bytes = requests.get(image_path).content
+    image = types.Part.from_bytes(
+      data=image_bytes, mime_type="image/jpeg"
+    )
+
+    client = genai.Client()
+
+    response = client.models.generate_content(
+        model="gemini-3.5-flash",
+        contents=["What is this image?", image],
+    )
+
+    print(response.text)
+
+### JavaScript
+
+    import { GoogleGenAI } from "@google/genai";
+
+    async function main() {
+      const ai = new GoogleGenAI({});
+
+      const imageUrl = "https://goo.gle/instrument-img";
+
+      const response = await fetch(imageUrl);
+      const imageArrayBuffer = await response.arrayBuffer();
+      const base64ImageData = Buffer.from(imageArrayBuffer).toString('base64');
+
+      const result = await ai.models.generateContent({
+        model: "gemini-3.5-flash",
+        contents: [
+        {
+          inlineData: {
+            mimeType: 'image/jpeg',
+            data: base64ImageData,
+          },
+        },
+        { text: "Caption this image." }
+      ],
+      });
+      console.log(result.text);
+    }
+
+    main();
+
+### Go
+
+    package main
+
+    import (
+      "context"
+      "fmt"
+      "os"
+      "io"
+      "net/http"
+      "google.golang.org/genai"
+    )
+
+    func main() {
+      ctx := context.Background()
+      client, err := genai.NewClient(ctx, nil)
+      if err != nil {
+          log.Fatal(err)
+      }
+
+      // Download the image.
+      imageResp, _ := http.Get("https://goo.gle/instrument-img")
+
+      imageBytes, _ := io.ReadAll(imageResp.Body)
+
+      parts := []*genai.Part{
+        genai.NewPartFromBytes(imageBytes, "image/jpeg"),
+        genai.NewPartFromText("Caption this image."),
+      }
+
+      contents := []*genai.Content{
+        genai.NewContentFromParts(parts, genai.RoleUser),
+      }
+
+      result, _ := client.Models.GenerateContent(
+        ctx,
+        "gemini-3.5-flash",
+        contents,
+        nil,
+      )
+
+      fmt.Println(result.Text())
+    }
+
+### REST
+
+    IMG_URL="https://goo.gle/instrument-img"
+
+    MIME_TYPE=$(curl -sIL "$IMG_URL" | grep -i '^content-type:' | awk -F ': ' '{print $2}' | sed 's/\r$//' | head -n 1)
+    if [[ -z "$MIME_TYPE" || ! "$MIME_TYPE" == image/* ]]; then
+      MIME_TYPE="image/jpeg"
+    fi
+
+    # Check for macOS
+    if [[ "$(uname)" == "Darwin" ]]; then
+      IMAGE_B64=$(curl -sL "$IMG_URL" | base64 -b 0)
+    elif [[ "$(base64 --version 2>&1)" = *"FreeBSD"* ]]; then
+      IMAGE_B64=$(curl -sL "$IMG_URL" | base64)
+    else
+      IMAGE_B64=$(curl -sL "$IMG_URL" | base64 -w0)
+    fi
+
+    curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent" \
+        -H "x-goog-api-key: $GEMINI_API_KEY" \
+        -H 'Content-Type: application/json' \
+        -X POST \
+        -d '{
+          "contents": [{
+            "parts":[
+                {
+                  "inline_data": {
+                    "mime_type":"'"$MIME_TYPE"'",
+                    "data": "'"$IMAGE_B64"'"
+                  }
+                },
+                {"text": "Caption this image."}
+            ]
+          }]
+        }' 2> /dev/null
+
+> [!NOTE]
+> **Note:** Inline image data limits your total request size (text prompts, system instructions, and inline bytes) to 20MB. For larger requests, [upload image files](https://ai.google.dev/gemini-api/docs/image-understanding#upload-image) using the File API. Files API is also more efficient for scenarios that use the same image repeatedly.
+
+### Uploading images using the File API
+
+For large files or to be able to use the same image file repeatedly, use the
+Files API. The following code uploads an image file and then uses the file in a
+call to `generateContent`. See the [Files API guide](https://ai.google.dev/gemini-api/docs/files) for
+more information and examples.
+
+### Python
+
+    from google import genai
+
+    client = genai.Client()
+
+    my_file = client.files.upload(file="path/to/sample.jpg")
+
+    response = client.models.generate_content(
+        model="gemini-3.5-flash",
+        contents=[my_file, "Caption this image."],
+    )
+
+    print(response.text)
+
+### JavaScript
+
+    import {
+      GoogleGenAI,
+      createUserContent,
+      createPartFromUri,
+    } from "@google/genai";
+
+    const ai = new GoogleGenAI({});
+
+    async function main() {
+      const myfile = await ai.files.upload({
+        file: "path/to/sample.jpg",
+        config: { mimeType: "image/jpeg" },
+      });
+
+      const response = await ai.models.generateContent({
+        model: "gemini-3.5-flash",
+        contents: createUserContent([
+          createPartFromUri(myfile.uri, myfile.mimeType),
+          "Caption this image.",
+        ]),
+      });
+      console.log(response.text);
+    }
+
+    await main();
+
+### Go
+
+    package main
+
+    import (
+      "context"
+      "fmt"
+      "os"
+      "google.golang.org/genai"
+    )
+
+    func main() {
+      ctx := context.Background()
+      client, err := genai.NewClient(ctx, nil)
+      if err != nil {
+          log.Fatal(err)
+      }
+
+      uploadedFile, _ := client.Files.UploadFromPath(ctx, "path/to/sample.jpg", nil)
+
+      parts := []*genai.Part{
+          genai.NewPartFromText("Caption this image."),
+          genai.NewPartFromURI(uploadedFile.URI, uploadedFile.MIMEType),
+      }
+
+      contents := []*genai.Content{
+          genai.NewContentFromParts(parts, genai.RoleUser),
+      }
+
+      result, _ := client.Models.GenerateContent(
+          ctx,
+          "gemini-3.5-flash",
+          contents,
+          nil,
+      )
+
+      fmt.Println(result.Text())
+    }
+
+### REST
+
+    IMAGE_PATH="path/to/sample.jpg"
+    MIME_TYPE=$(file -b --mime-type "${IMAGE_PATH}")
+    NUM_BYTES=$(wc -c < "${IMAGE_PATH}")
+    DISPLAY_NAME=IMAGE
+
+    tmp_header_file=upload-header.tmp
+
+    # Initial resumable request defining metadata.
+    # The upload url is in the response headers dump them to a file.
+    curl "https://generativelanguage.googleapis.com/upload/v1beta/files" \
+      -H "x-goog-api-key: $GEMINI_API_KEY" \
+      -D upload-header.tmp \
+      -H "X-Goog-Upload-Protocol: resumable" \
+      -H "X-Goog-Upload-Command: start" \
+      -H "X-Goog-Upload-Header-Content-Length: ${NUM_BYTES}" \
+      -H "X-Goog-Upload-Header-Content-Type: ${MIME_TYPE}" \
+      -H "Content-Type: application/json" \
+      -d "{'file': {'display_name': '${DISPLAY_NAME}'}}" 2> /dev/null
+
+    upload_url=$(grep -i "x-goog-upload-url: " "${tmp_header_file}" | cut -d" " -f2 | tr -d "\r")
+    rm "${tmp_header_file}"
+
+    # Upload the actual bytes.
+    curl "${upload_url}" \
+      -H "x-goog-api-key: $GEMINI_API_KEY" \
+      -H "Content-Length: ${NUM_BYTES}" \
+      -H "X-Goog-Upload-Offset: 0" \
+      -H "X-Goog-Upload-Command: upload, finalize" \
+      --data-binary "@${IMAGE_PATH}" 2> /dev/null > file_info.json
+
+    file_uri=$(jq -r ".file.uri" file_info.json)
+    echo file_uri=$file_uri
+
+    # Now generate content using that file
+    curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent" \
+        -H "x-goog-api-key: $GEMINI_API_KEY" \
+        -H 'Content-Type: application/json' \
+        -X POST \
+        -d '{
+          "contents": [{
+            "parts":[
+              {"file_data":{"mime_type": "'"${MIME_TYPE}"'", "file_uri": "'"${file_uri}"'"}},
+              {"text": "Caption this image."}]
+            }]
+          }' 2> /dev/null > response.json
+
+    cat response.json
+    echo
+
+    jq ".candidates[].content.parts[].text" response.json
+
+## Prompting with multiple images
+
+You can provide multiple images in a single prompt by including multiple image
+`Part` objects in the `contents` array. These can be a mix of inline data
+(local files or URLs) and File API references.
+
+### Python
+
+    from google import genai
+    from google.genai import types
+
+    client = genai.Client()
+
+    # Upload the first image
+    image1_path = "path/to/image1.jpg"
+    uploaded_file = client.files.upload(file=image1_path)
+
+    # Prepare the second image as inline data
+    image2_path = "path/to/image2.png"
+    with open(image2_path, 'rb') as f:
+        img2_bytes = f.read()
+
+    # Create the prompt with text and multiple images
+    response = client.models.generate_content(
+
+        model="gemini-3.5-flash",
+        contents=[
+            "What is different between these two images?",
+            uploaded_file,  # Use the uploaded file reference
+            types.Part.from_bytes(
+                data=img2_bytes,
+                mime_type='image/png'
+            )
+        ]
+    )
+
+    print(response.text)
+
+### JavaScript
+
+    import {
+      GoogleGenAI,
+      createUserContent,
+      createPartFromUri,
+    } from "@google/genai";
+    import * as fs from "node:fs";
+
+    const ai = new GoogleGenAI({});
+
+    async function main() {
+      // Upload the first image
+      const image1_path = "path/to/image1.jpg";
+      const uploadedFile = await ai.files.upload({
+        file: image1_path,
+        config: { mimeType: "image/jpeg" },
+      });
+
+      // Prepare the second image as inline data
+      const image2_path = "path/to/image2.png";
+      const base64Image2File = fs.readFileSync(image2_path, {
+        encoding: "base64",
+      });
+
+      // Create the prompt with text and multiple images
+
+      const response = await ai.models.generateContent({
+
+        model: "gemini-3.5-flash",
+        contents: createUserContent([
+          "What is different between these two images?",
+          createPartFromUri(uploadedFile.uri, uploadedFile.mimeType),
+          {
+            inlineData: {
+              mimeType: "image/png",
+              data: base64Image2File,
+            },
+          },
+        ]),
+      });
+      console.log(response.text);
+    }
+
+    await main();
+
+### Go
+
+    // Upload the first image
+    image1Path := "path/to/image1.jpg"
+    uploadedFile, _ := client.Files.UploadFromPath(ctx, image1Path, nil)
+
+    // Prepare the second image as inline data
+    image2Path := "path/to/image2.jpeg"
+    imgBytes, _ := os.ReadFile(image2Path)
+
+    parts := []*genai.Part{
+      genai.NewPartFromText("What is different between these two images?"),
+      genai.NewPartFromBytes(imgBytes, "image/jpeg"),
+      genai.NewPartFromURI(uploadedFile.URI, uploadedFile.MIMEType),
+    }
+
+    contents := []*genai.Content{
+      genai.NewContentFromParts(parts, genai.RoleUser),
+    }
+
+    result, _ := client.Models.GenerateContent(
+      ctx,
+      "gemini-3.5-flash",
+      contents,
+      nil,
+    )
+
+    fmt.Println(result.Text())
+
+### REST
+
+    # Upload the first image
+    IMAGE1_PATH="path/to/image1.jpg"
+    MIME1_TYPE=$(file -b --mime-type "${IMAGE1_PATH}")
+    NUM1_BYTES=$(wc -c < "${IMAGE1_PATH}")
+    DISPLAY_NAME1=IMAGE1
+
+    tmp_header_file1=upload-header1.tmp
+
+    curl "https://generativelanguage.googleapis.com/upload/v1beta/files" \
+      -H "x-goog-api-key: $GEMINI_API_KEY" \
+      -D upload-header1.tmp \
+      -H "X-Goog-Upload-Protocol: resumable" \
+      -H "X-Goog-Upload-Command: start" \
+      -H "X-Goog-Upload-Header-Content-Length: ${NUM1_BYTES}" \
+      -H "X-Goog-Upload-Header-Content-Type: ${MIME1_TYPE}" \
+      -H "Content-Type: application/json" \
+      -d "{'file': {'display_name': '${DISPLAY_NAME1}'}}" 2> /dev/null
+
+    upload_url1=$(grep -i "x-goog-upload-url: " "${tmp_header_file1}" | cut -d" " -f2 | tr -d "\r")
+    rm "${tmp_header_file1}"
+
+    curl "${upload_url1}" \
+      -H "Content-Length: ${NUM1_BYTES}" \
+      -H "X-Goog-Upload-Offset: 0" \
+      -H "X-Goog-Upload-Command: upload, finalize" \
+      --data-binary "@${IMAGE1_PATH}" 2> /dev/null > file_info1.json
+
+    file1_uri=$(jq ".file.uri" file_info1.json)
+    echo file1_uri=$file1_uri
+
+    # Prepare the second image (inline)
+    IMAGE2_PATH="path/to/image2.png"
+    MIME2_TYPE=$(file -b --mime-type "${IMAGE2_PATH}")
+
+    if [[ "$(base64 --version 2>&1)" = *"FreeBSD"* ]]; then
+      B64FLAGS="--input"
+    else
+      B64FLAGS="-w0"
+    fi
+    IMAGE2_BASE64=$(base64 $B64FLAGS $IMAGE2_PATH)
+
+    # Now generate content using both images
+    curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent" \
+        -H "x-goog-api-key: $GEMINI_API_KEY" \
+        -H 'Content-Type: application/json' \
+        -X POST \
+        -d '{
+          "contents": [{
+            "parts":[
+              {"text": "What is different between these two images?"},
+              {"file_data":{"mime_type": "'"${MIME1_TYPE}"'", "file_uri": '$file1_uri'}},
+              {
+                "inline_data": {
+                  "mime_type":"'"${MIME2_TYPE}"'",
+                  "data": "'"$IMAGE2_BASE64"'"
+                }
+              }
+            ]
+          }]
+        }' 2> /dev/null > response.json
+
+    cat response.json
+    echo
+
+    jq ".candidates[].content.parts[].text" response.json
+
+## Object detection
+
+Models are trained to detect objects in an
+image and get their bounding box coordinates. The coordinates, relative to image
+dimensions, scale to \[0, 1000\]. You need to descale these coordinates based on
+your original image size.
+
+### Python
+
+    from google import genai
+    from google.genai import types
+    from PIL import Image
+    import json
+
+    client = genai.Client()
+    prompt = "Detect the all of the prominent items in the image. The box_2d should be [ymin, xmin, ymax, xmax] normalized to 0-1000."
+
+    image = Image.open("/path/to/image.png")
+
+    config = types.GenerateContentConfig(
+      response_mime_type="application/json"
+      )
+
+    response = client.models.generate_content(model="gemini-3.5-flash",
+                                              contents=[image, prompt],
+                                              config=config
+                                              )
+
+    width, height = image.size
+    bounding_boxes = json.loads(response.text)
+
+    converted_bounding_boxes = []
+    for bounding_box in bounding_boxes:
+        abs_y1 = int(bounding_box["box_2d"][0]/1000 * height)
+        abs_x1 = int(bounding_box["box_2d"][1]/1000 * width)
+        abs_y2 = int(bounding_box["box_2d"][2]/1000 * height)
+        abs_x2 = int(bounding_box["box_2d"][3]/1000 * width)
+        converted_bounding_boxes.append([abs_x1, abs_y1, abs_x2, abs_y2])
+
+    print("Image size: ", width, height)
+    print("Bounding boxes:", converted_bounding_boxes)
+
+> [!NOTE]
+> **Note:** The model also supports generating bounding boxes based on custom instructions, such as: "Show bounding boxes of all green objects in this image". It also support custom labels like "label the items with the allergens they can contain".
+
+For more examples, check following notebooks in the [Gemini Cookbook](https://github.com/google-gemini/cookbook):
+
+- [2D spatial understanding notebook](https://colab.research.google.com/github/google-gemini/cookbook/blob/main/quickstarts/Spatial_understanding.ipynb)
+- [Experimental 3D pointing notebook](https://colab.research.google.com/github/google-gemini/cookbook/blob/main/examples/Spatial_understanding_3d.ipynb)
+
+## Supported image formats
+
+Gemini supports the following image format MIME types:
+
+- PNG - `image/png`
+- JPEG - `image/jpeg`
+- WEBP - `image/webp`
+- HEIC - `image/heic`
+- HEIF - `image/heif`
+
+To learn about other file input methods, see the
+[File input methods](https://ai.google.dev/gemini-api/docs/file-input-methods) guide.
+
+## Capabilities
+
+All Gemini model versions are multimodal and can be utilized in a wide range of
+image processing and computer vision tasks including but not limited to image captioning,
+visual question and answering, image classification, and object detection.
+
+Gemini can reduce the need to use specialized ML models depending on your quality and performance requirements.
+
+The latest model versions are specifically trained improve accuracy of
+specialized tasks in addition to generic capabilities, like enhanced
+[object detection](https://ai.google.dev/gemini-api/docs/image-understanding#object-detection).
+
+## Limitations and key technical information
+
+### File limit
+
+Gemini models support a maximum of 3,600 image files per request.
+
+### Token calculation
+
+- 258 tokens if both dimensions \<= 384 pixels. Larger images are tiled into 768x768 pixel tiles, each costing 258 tokens.
+
+A rough formula for calculating the number of tiles is as follows:
+
+- Calculate the crop unit size which is roughly: floor(min(width, height) / 1.5).
+- Divide each dimension by the crop unit size and multiply together to get the number of tiles.
+
+For example, for an image of dimensions 960x540 would have a crop unit size
+of 360. Divide each dimension by 360 and the number of tile is 3 \* 2 = 6.
+
+### Media resolution
+
+Gemini 3 introduces granular control over multimodal vision processing with the
+`media_resolution` parameter. The `media_resolution` parameter determines the
+**maximum number of tokens allocated per input image or video frame.**
+Higher resolutions improve the model's ability to
+read fine text or identify small details, but increase token usage and latency.
+
+For more details about the parameter and how it can impact token calculations,
+see the [media resolution](https://ai.google.dev/gemini-api/docs/media-resolution) guide.
+
+## Tips and best practices
+
+- Verify that images are correctly rotated.
+- Use clear, non-blurry images.
+- When using a single image with text, place the text prompt *after* the image part in the `contents` array.
+
+## What's next
+
+This guide shows you how to upload image files and generate text outputs from image
+inputs. To learn more, see the following resources:
+
+- [Files API](https://ai.google.dev/gemini-api/docs/files): Learn more about uploading and managing files for use with Gemini.
+- [System instructions](https://ai.google.dev/gemini-api/docs/text-generation#system-instructions): System instructions let you steer the behavior of the model based on your specific needs and use cases.
+- [File prompting strategies](https://ai.google.dev/gemini-api/docs/files#prompt-guide): The Gemini API supports prompting with text, image, audio, and video data, also known as multimodal prompting.
+- [Safety guidance](https://ai.google.dev/gemini-api/docs/safety-guidance): Sometimes generative AI models produce unexpected outputs, such as outputs that are inaccurate, biased, or offensive. Post-processing and human evaluation are essential to limit the risk of harm from such outputs.
+
+
+---
+
+# Video understanding
+
+> To learn about video generation, see the [Veo](https://ai.google.dev/gemini-api/docs/video) guide.
+
+Gemini models can process videos, enabling many frontier developer use cases
+that would have historically required domain specific models.
+Some of Gemini's vision capabilities include the ability to: describe, segment,
+and extract information from videos, answer questions about video content, and
+refer to specific timestamps within a video.
+
+You can provide videos as input to Gemini in the following ways:
+
+| Input method | Max size | Recommended use case |
+|---|---|---|
+| [File API](https://ai.google.dev/gemini-api/docs/video-understanding#upload-video) | 20GB (paid) / 2GB (free) | Large files (100MB+), long videos (10min+), reusable files. |
+| [Cloud Storage Registration](https://ai.google.dev/gemini-api/docs/file-input-methods#registration) | 2GB (per file, no storage limits) | Large files (100MB+), long videos (10min+), persistent, reusable files. |
+| [Inline Data](https://ai.google.dev/gemini-api/docs/video-understanding#inline-video) | \< 100MB | Small files (\<100MB), short duration (\<1min), one-off inputs. |
+| [YouTube URLs](https://ai.google.dev/gemini-api/docs/video-understanding#youtube) | N/A | Public YouTube videos. |
+
+> **Note:** The [File API](https://ai.google.dev/gemini-api/docs/video-understanding#upload-video) is recommended for most use cases, especially for files larger than 100MB or when you want to reuse the file across multiple requests.
+
+To learn about other file input methods, such as using external URLs or files
+stored in Google Cloud, see the
+[File input methods](https://ai.google.dev/gemini-api/docs/file-input-methods) guide.
+
+### Upload a video file
+
+The following code downloads a sample video, uploads it using the [Files API](https://ai.google.dev/gemini-api/docs/files),
+waits for it to be processed, and then uses the uploaded file reference to
+summarize the video.
+
+### Python
+
+    from google import genai
+
+    client = genai.Client()
+
+    myfile = client.files.upload(file="path/to/sample.mp4")
+
+    response = client.models.generate_content(
+        model="gemini-3.5-flash", contents=[myfile, "Summarize this video. Then create a quiz with an answer key based on the information in this video."]
+    )
+
+    print(response.text)
+
+### JavaScript
+
+    import {
+      GoogleGenAI,
+      createUserContent,
+      createPartFromUri,
+    } from "@google/genai";
+
+    const ai = new GoogleGenAI({});
+
+    async function main() {
+      const myfile = await ai.files.upload({
+        file: "path/to/sample.mp4",
+        config: { mimeType: "video/mp4" },
+      });
+
+      const response = await ai.models.generateContent({
+        model: "gemini-3.5-flash",
+        contents: createUserContent([
+          createPartFromUri(myfile.uri, myfile.mimeType),
+          "Summarize this video. Then create a quiz with an answer key based on the information in this video.",
+        ]),
+      });
+      console.log(response.text);
+    }
+
+    await main();
+
+### Go
+
+    uploadedFile, _ := client.Files.UploadFromPath(ctx, "path/to/sample.mp4", nil)
+
+    parts := []*genai.Part{
+        genai.NewPartFromText("Summarize this video. Then create a quiz with an answer key based on the information in this video."),
+        genai.NewPartFromURI(uploadedFile.URI, uploadedFile.MIMEType),
+    }
+
+    contents := []*genai.Content{
+        genai.NewContentFromParts(parts, genai.RoleUser),
+    }
+
+    result, _ := client.Models.GenerateContent(
+        ctx,
+        "gemini-3.5-flash",
+        contents,
+        nil,
+    )
+
+    fmt.Println(result.Text())
+
+### REST
+
+    VIDEO_PATH="path/to/sample.mp4"
+    MIME_TYPE=$(file -b --mime-type "${VIDEO_PATH}")
+    NUM_BYTES=$(wc -c < "${VIDEO_PATH}")
+    DISPLAY_NAME=VIDEO
+
+    tmp_header_file=upload-header.tmp
+
+    echo "Starting file upload..."
+    curl "https://generativelanguage.googleapis.com/upload/v1beta/files" \
+      -H "x-goog-api-key: $GEMINI_API_KEY" \
+      -D ${tmp_header_file} \
+      -H "X-Goog-Upload-Protocol: resumable" \
+      -H "X-Goog-Upload-Command: start" \
+      -H "X-Goog-Upload-Header-Content-Length: ${NUM_BYTES}" \
+      -H "X-Goog-Upload-Header-Content-Type: ${MIME_TYPE}" \
+      -H "Content-Type: application/json" \
+      -d "{'file': {'display_name': '${DISPLAY_NAME}'}}" 2> /dev/null
+
+    upload_url=$(grep -i "x-goog-upload-url: " "${tmp_header_file}" | cut -d" " -f2 | tr -d "\r")
+    rm "${tmp_header_file}"
+
+    echo "Uploading video data..."
+    curl "${upload_url}" \
+      -H "Content-Length: ${NUM_BYTES}" \
+      -H "X-Goog-Upload-Offset: 0" \
+      -H "X-Goog-Upload-Command: upload, finalize" \
+      --data-binary "@${VIDEO_PATH}" 2> /dev/null > file_info.json
+
+    file_uri=$(jq -r ".file.uri" file_info.json)
+    echo file_uri=$file_uri
+
+    echo "File uploaded successfully. File URI: ${file_uri}"
+
+    # --- 3. Generate content using the uploaded video file ---
+    echo "Generating content from video..."
+    curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent" \
+        -H "x-goog-api-key: $GEMINI_API_KEY" \
+        -H 'Content-Type: application/json' \
+        -X POST \
+        -d '{
+          "contents": [{
+            "parts":[
+              {"file_data":{"mime_type": "'"${MIME_TYPE}"'", "file_uri": "'"${file_uri}"'"}},
+              {"text": "Summarize this video. Then create a quiz with an answer key based on the information in this video."}]
+            }]
+          }' 2> /dev/null > response.json
+
+    jq -r ".candidates[].content.parts[].text" response.json
+
+Always use the Files API when the total request size (including the file, text
+prompt, system instructions, etc.) is larger than 20 MB, the video duration is
+significant, or if you intend to use the same video in multiple prompts.
+The File API accepts video file formats directly.
+
+To learn more about working with media files, see
+[Files API](https://ai.google.dev/gemini-api/docs/files).
+
+### Pass video data inline
+
+Instead of uploading a video file using the File API, you can pass smaller
+videos directly in the request to `generateContent`. This is suitable for
+shorter videos under 20MB total request size.
+
+Here's an example of providing inline video data:
+
+### Python
+
+    from google import genai
+    from google.genai import types
+
+    # Only for videos of size <20Mb
+    video_file_name = "/path/to/your/video.mp4"
+    video_bytes = open(video_file_name, 'rb').read()
+
+    client = genai.Client()
+    response = client.models.generate_content(
+        model='gemini-3.5-flash',
+        contents=types.Content(
+            parts=[
+                types.Part(
+                    inline_data=types.Blob(data=video_bytes, mime_type='video/mp4')
+                ),
+                types.Part(text='Please summarize the video in 3 sentences.')
+            ]
+        )
+    )
+    print(response.text)
+
+### JavaScript
+
+    import { GoogleGenAI } from "@google/genai";
+    import * as fs from "node:fs";
+
+    const ai = new GoogleGenAI({});
+    const base64VideoFile = fs.readFileSync("path/to/small-sample.mp4", {
+      encoding: "base64",
+    });
+
+    const contents = [
+      {
+        inlineData: {
+          mimeType: "video/mp4",
+          data: base64VideoFile,
+        },
+      },
+      { text: "Please summarize the video in 3 sentences." }
+    ];
+
+    const response = await ai.models.generateContent({
+      model: "gemini-3.5-flash",
+      contents: contents,
+    });
+    console.log(response.text);
+
+### REST
+
+> [!NOTE]
+> **Note:** If you get an `Argument list too long` error, the base64 encoding of your file might be too long for the curl command line. Use the File API method instead for larger files.
+
+    VIDEO_PATH=/path/to/your/video.mp4
+
+    if [[ "$(base64 --version 2>&1)" = *"FreeBSD"* ]]; then
+      B64FLAGS="--input"
+    else
+      B64FLAGS="-w0"
+    fi
+
+    curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent" \
+        -H "x-goog-api-key: $GEMINI_API_KEY" \
+        -H 'Content-Type: application/json' \
+        -X POST \
+        -d '{
+          "contents": [{
+            "parts":[
+                {
+                  "inline_data": {
+                    "mime_type":"video/mp4",
+                    "data": "'$(base64 $B64FLAGS $VIDEO_PATH)'"
+                  }
+                },
+                {"text": "Please summarize the video in 3 sentences."}
+            ]
+          }]
+        }' 2> /dev/null
+
+### Pass YouTube URLs
+
+> [!WARNING]
+> **Preview:** The YouTube URL feature is in preview and is available at no charge. Pricing and rate limits are likely to change.
+
+You can pass YouTube URLs directly to Gemini API as part of your request as follows:
+
+### Python
+
+    from google import genai
+    from google.genai import types
+
+    client = genai.Client()
+    response = client.models.generate_content(
+        model='gemini-3.5-flash',
+        contents=types.Content(
+            parts=[
+                types.Part(
+                    file_data=types.FileData(file_uri='https://www.youtube.com/watch?v=9hE5-98ZeCg')
+                ),
+                types.Part(text='Please summarize the video in 3 sentences.')
+            ]
+        )
+    )
+    print(response.text)
+
+### JavaScript
+
+    import { GoogleGenAI } from "@google/genai";
+
+    const ai = new GoogleGenAI({});
+
+    const contents = [
+      {
+        fileData: {
+          fileUri: "https://www.youtube.com/watch?v=9hE5-98ZeCg",
+        },
+      },
+      { text: "Please summarize the video in 3 sentences." }
+    ];
+
+    const response = await ai.models.generateContent({
+      model: "gemini-3.5-flash",
+      contents: contents,
+    });
+    console.log(response.text);
+
+### Go
+
+    package main
+
+    import (
+      "context"
+      "fmt"
+      "os"
+      "google.golang.org/genai"
+    )
+
+    func main() {
+      ctx := context.Background()
+      client, err := genai.NewClient(ctx, nil)
+      if err != nil {
+          log.Fatal(err)
+      }
+
+      parts := []*genai.Part{
+          genai.NewPartFromText("Please summarize the video in 3 sentences."),
+          genai.NewPartFromURI("https://www.youtube.com/watch?v=9hE5-98ZeCg","video/mp4"),
+      }
+
+      contents := []*genai.Content{
+          genai.NewContentFromParts(parts, genai.RoleUser),
+      }
+
+      result, _ := client.Models.GenerateContent(
+          ctx,
+          "gemini-3.5-flash",
+          contents,
+          nil,
+      )
+
+      fmt.Println(result.Text())
+    }
+
+### REST
+
+    curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent" \
+        -H "x-goog-api-key: $GEMINI_API_KEY" \
+        -H 'Content-Type: application/json' \
+        -X POST \
+        -d '{
+          "contents": [{
+            "parts":[
+                {"text": "Please summarize the video in 3 sentences."},
+                {
+                  "file_data": {
+                    "file_uri": "https://www.youtube.com/watch?v=9hE5-98ZeCg"
+                  }
+                }
+            ]
+          }]
+        }' 2> /dev/null
+
+**Limitations:**
+
+- For the free tier, you can't upload more than 8 hours of YouTube video per day.
+- For the paid tier, there is no limit based on video length.
+- For models prior to Gemini 2.5, you can upload only 1 video per request. For Gemini 2.5 and later models, you can upload a maximum of 10 videos per request.
+- You can only upload public videos (not private or unlisted videos).
+
+## Use context caching for long videos
+
+For videos longer than 10 minutes, or when you plan to make multiple requests
+against the same video file, use [context caching](https://ai.google.dev/gemini-api/docs/caching) to
+reduce costs and improve latency. Context caching lets you process the video
+once and reuse the tokens for subsequent queries, making it ideal for chat
+sessions or repeated analysis of long-form content.
+
+## Refer to timestamps in the content
+
+You can ask questions about specific points in time within the video using
+timestamps of the form `MM:SS`.
+
+### Python
+
+    prompt = "What are the examples given at 00:05 and 00:10 supposed to show us?" # Adjusted timestamps for the NASA video
+
+### JavaScript
+
+    const prompt = "What are the examples given at 00:05 and 00:10 supposed to show us?";
+
+### Go
+
+        prompt := []*genai.Part{
+            genai.NewPartFromURI(currentVideoFile.URI, currentVideoFile.MIMEType),
+             // Adjusted timestamps for the NASA video
+            genai.NewPartFromText("What are the examples given at 00:05 and " +
+                "00:10 supposed to show us?"),
+        }
+
+### REST
+
+    PROMPT="What are the examples given at 00:05 and 00:10 supposed to show us?"
+
+## Extract detailed insights from video
+
+Gemini models offer powerful capabilities for understanding video content by
+processing information from both the **audio and visual** streams. This lets you
+extract a rich set of details, including generating descriptions of what is
+happening in a video and answering questions about its content.
+
+For visual descriptions, the model samples the video at a rate of **1 frame
+per second** (FPS). This default sampling rate works well for most content, but
+note that it may miss details in videos with rapid motion or quick scene changes.
+For such high-motion content, consider [setting a custom frame rate](https://ai.google.dev/gemini-api/docs/video-understanding#custom-frame-rate).
+
+### Python
+
+    prompt = "Describe the key events in this video, providing both audio and visual details. Include timestamps for salient moments."
+
+### JavaScript
+
+    const prompt = "Describe the key events in this video, providing both audio and visual details. Include timestamps for salient moments.";
+
+### Go
+
+        prompt := []*genai.Part{
+            genai.NewPartFromURI(currentVideoFile.URI, currentVideoFile.MIMEType),
+            genai.NewPartFromText("Describe the key events in this video, providing both audio and visual details. " +
+          "Include timestamps for salient moments."),
+        }
+
+### REST
+
+    PROMPT="Describe the key events in this video, providing both audio and visual details. Include timestamps for salient moments."
+
+## Customize video processing
+
+You can customize video processing in the Gemini API by setting clipping
+intervals or providing custom frame rate sampling.
+
+> [!TIP]
+> **Tip:** Video clipping and frames per second (FPS) are supported by all models, but the quality is significantly higher from 2.5 series models.
+
+### Set clipping intervals
+
+You can clip video by specifying `videoMetadata` with start and end offsets.
+
+### Python
+
+    from google import genai
+    from google.genai import types
+
+    client = genai.Client()
+    response = client.models.generate_content(
+        model='models/gemini-3.5-flash',
+        contents=types.Content(
+            parts=[
+                types.Part(
+                    file_data=types.FileData(file_uri='https://www.youtube.com/watch?v=XEzRZ35urlk'),
+                    video_metadata=types.VideoMetadata(
+                        start_offset='1250s',
+                        end_offset='1570s'
+                    )
+                ),
+                types.Part(text='Please summarize the video in 3 sentences.')
+            ]
+        )
+    )
+
+### JavaScript
+
+    import { GoogleGenAI } from '@google/genai';
+    const ai = new GoogleGenAI({});
+    const model = 'gemini-3.5-flash';
+
+    async function main() {
+    const contents = [
+      {
+        role: 'user',
+        parts: [
+          {
+            fileData: {
+              fileUri: 'https://www.youtube.com/watch?v=9hE5-98ZeCg',
+              mimeType: 'video/*',
+            },
+            videoMetadata: {
+              startOffset: '40s',
+              endOffset: '80s',
+            }
+          },
+          {
+            text: 'Please summarize the video in 3 sentences.',
+          },
+        ],
+      },
+    ];
+
+    const response = await ai.models.generateContent({
+      model,
+      contents,
+    });
+
+    console.log(response.text)
+
+    }
+
+    await main();
+
+### Set a custom frame rate
+
+You can set custom frame rate sampling by passing an `fps` argument to
+`videoMetadata`.
+
+> [!NOTE]
+> **Note:** Due to built-in per image based safety checks, the same video may get blocked at some fps and not at others due to different extracted frames.
+
+### Python
+
+    from google import genai
+    from google.genai import types
+
+    # Only for videos of size <20Mb
+    video_file_name = "/path/to/your/video.mp4"
+    video_bytes = open(video_file_name, 'rb').read()
+
+    client = genai.Client()
+    response = client.models.generate_content(
+        model='models/gemini-3.5-flash',
+        contents=types.Content(
+            parts=[
+                types.Part(
+                    inline_data=types.Blob(
+                        data=video_bytes,
+                        mime_type='video/mp4'),
+                    video_metadata=types.VideoMetadata(fps=5)
+                ),
+                types.Part(text='Please summarize the video in 3 sentences.')
+            ]
+        )
+    )
+
+By default 1 frame per second (FPS) is sampled from the video. You might want to
+set low FPS (\< 1) for long videos. This is especially useful for mostly static
+videos (e.g. lectures). Use a higher FPS for videos requiring granular temporal
+analysis, such as fast-action understanding or high-speed motion tracking.
+
+## Supported video formats
+
+Gemini supports the following video format MIME types:
+
+- `video/mp4`
+- `video/mpeg`
+- `video/quicktime`
+- `video/avi`
+- `video/x-flv`
+- `video/mpg`
+- `video/webm`
+- `video/wmv`
+- `video/3gpp`
+
+## Technical details about videos
+
+- **Supported models \& context** : All Gemini can process video data.
+  - Models with a 1M context window can process videos up to 1 hour long at default media resolution or 3 hours long at low media resolution.
+- **File API processing** : When using the File API, videos are stored at 1 frame per second (FPS) and audio is processed at 1Kbps (single channel). Timestamps are added every second.
+  - These rates are subject to change in the future for improvements in inference.
+  - You can override the 1 FPS sampling rate by [setting a custom frame rate](https://ai.google.dev/gemini-api/docs/video-understanding#custom-frame-rate).
+- **Token calculation** : Each second of video is tokenized as follows:
+  - Individual frames (sampled at 1 FPS):
+    - If [`mediaResolution`](https://ai.google.dev/api/generate-content#MediaResolution) is set to low, frames are tokenized at 66 tokens per frame.
+    - Otherwise, frames are tokenized at 258 tokens per frame.
+  - Audio: 32 tokens per second.
+  - Metadata is also included.
+  - Total: Approximately 300 tokens per second of video at default media resolution, or 100 tokens per second of video at low media resolution.
+- **Medial resolution** : Gemini 3 introduces granular control over multimodal
+  vision processing with the `media_resolution` parameter. The
+  `media_resolution` parameter determines the
+  **maximum number of tokens allocated per input image or video frame.**
+  Higher resolutions improve the model's ability to read fine text or identify
+  small details, but increase token usage and latency.
+
+  For more details about the parameter and how it can impact token
+  calculations, see the [media resolution](https://ai.google.dev/gemini-api/docs/media-resolution) guide.
+- **Timestamp format** : When referring to specific moments in a video within your prompt, use the `MM:SS` format (e.g., `01:15` for 1 minute and 15 seconds).
+
+- **Best practices**:
+
+  - Use only one video per prompt request for optimal results.
+  - If combining text and a single video, place the text prompt *after* the video part in the `contents` array.
+  - Be aware that fast action sequences might lose detail due to the 1 FPS sampling rate. Consider slowing down such clips if necessary.
+
+## What's next
+
+This guide shows how to upload video files and generate text outputs from video
+inputs. To learn more, see the following resources:
+
+- [System instructions](https://ai.google.dev/gemini-api/docs/text-generation#system-instructions): System instructions let you steer the behavior of the model based on your specific needs and use cases.
+- [Files API](https://ai.google.dev/gemini-api/docs/files): Learn more about uploading and managing files for use with Gemini.
+- [File prompting strategies](https://ai.google.dev/gemini-api/docs/files#prompt-guide): The Gemini API supports prompting with text, image, audio, and video data, also known as multimodal prompting.
+- [Safety guidance](https://ai.google.dev/gemini-api/docs/safety-guidance): Sometimes generative AI models produce unexpected outputs, such as outputs that are inaccurate, biased, or offensive. Post-processing and human evaluation are essential to limit the risk of harm from such outputs.
+
+
+---
+
+
+# Audio understanding
+
+Gemini can analyze audio input and generate text responses.
+
+### Python
+
+    from google import genai
+
+    client = genai.Client()
+
+    myfile = client.files.upload(file="path/to/sample.mp3")
+
+    response = client.models.generate_content(
+        model="gemini-3.5-flash", contents=["Describe this audio clip", myfile]
+    )
+
+    print(response.text)
+
+### JavaScript
+
+    import {
+      GoogleGenAI,
+      createUserContent,
+      createPartFromUri,
+    } from "@google/genai";
+
+    const ai = new GoogleGenAI({});
+
+    async function main() {
+      const myfile = await ai.files.upload({
+        file: "path/to/sample.mp3",
+        config: { mimeType: "audio/mp3" },
+      });
+
+      const response = await ai.models.generateContent({
+        model: "gemini-3.5-flash",
+        contents: createUserContent([
+          createPartFromUri(myfile.uri, myfile.mimeType),
+          "Describe this audio clip",
+        ]),
+      });
+      console.log(response.text);
+    }
+
+    await main();
+
+### Go
+
+    package main
+
+    import (
+        "context"
+        "fmt"
+        "os"
+        "google.golang.org/genai"
+    )
+
+    func main() {
+        ctx := context.Background()
+        client, err := genai.NewClient(ctx, nil)
+        if err != nil {
+            log.Fatal(err)
+        }
+
+        localAudioPath := "/path/to/sample.mp3"
+        uploadedFile, _ := client.Files.UploadFromPath(
+            ctx,
+            localAudioPath,
+            nil,
+        )
+
+        parts := []*genai.Part{
+            genai.NewPartFromText("Describe this audio clip"),
+            genai.NewPartFromURI(uploadedFile.URI, uploadedFile.MIMEType),
+        }
+        contents := []*genai.Content{
+            genai.NewContentFromParts(parts, genai.RoleUser),
+        }
+
+        result, _ := client.Models.GenerateContent(
+            ctx,
+            "gemini-3.5-flash",
+            contents,
+            nil,
+        )
+
+        fmt.Println(result.Text())
+    }
+
+### REST
+
+    AUDIO_PATH="path/to/sample.mp3"
+    MIME_TYPE=$(file -b --mime-type "${AUDIO_PATH}")
+    NUM_BYTES=$(wc -c < "${AUDIO_PATH}")
+    DISPLAY_NAME=AUDIO
+
+    tmp_header_file=upload-header.tmp
+
+    # Initial resumable request defining metadata.
+    # The upload url is in the response headers dump them to a file.
+    curl "https://generativelanguage.googleapis.com/upload/v1beta/files" \
+      -H "x-goog-api-key: $GEMINI_API_KEY" \
+      -D upload-header.tmp \
+      -H "X-Goog-Upload-Protocol: resumable" \
+      -H "X-Goog-Upload-Command: start" \
+      -H "X-Goog-Upload-Header-Content-Length: ${NUM_BYTES}" \
+      -H "X-Goog-Upload-Header-Content-Type: ${MIME_TYPE}" \
+      -H "Content-Type: application/json" \
+      -d "{'file': {'display_name': '${DISPLAY_NAME}'}}" 2> /dev/null
+
+    upload_url=$(grep -i "x-goog-upload-url: " "${tmp_header_file}" | cut -d" " -f2 | tr -d "\r")
+    rm "${tmp_header_file}"
+
+    # Upload the actual bytes.
+    curl "${upload_url}" \
+      -H "Content-Length: ${NUM_BYTES}" \
+      -H "X-Goog-Upload-Offset: 0" \
+      -H "X-Goog-Upload-Command: upload, finalize" \
+      --data-binary "@${AUDIO_PATH}" 2> /dev/null > file_info.json
+
+    file_uri=$(jq ".file.uri" file_info.json)
+    echo file_uri=$file_uri
+
+    # Now generate content using that file
+    curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent" \
+        -H "x-goog-api-key: $GEMINI_API_KEY" \
+        -H 'Content-Type: application/json' \
+        -X POST \
+        -d '{
+          "contents": [{
+            "parts":[
+              {"text": "Describe this audio clip"},
+              {"file_data":{"mime_type": "${MIME_TYPE}", "file_uri": '$file_uri'}}]
+            }]
+          }' 2> /dev/null > response.json
+
+    cat response.json
+    echo
+
+    jq ".candidates[].content.parts[].text" response.json
+
+## Overview
+
+Gemini can analyze and understand audio input and generate text responses to it,
+enabling use cases like the following:
+
+- Describe, summarize, or answer questions about audio content.
+- Provide a transcription and translation of the audio (speech to text).
+- Detect emotion in speech and music.
+- Analyze specific segments of the audio, and provide timestamps.
+
+As of now the Gemini API doesn't support real-time transcription use cases.
+For real-time voice and video interactions refer to the [Live API](https://ai.google.dev/gemini-api/docs/live).
+For dedicated speech to text models with support for real-time transcription,
+use the [Google Cloud Speech-to-Text API](https://cloud.google.com/speech-to-text).
+
+## Transcribe speech to text
+
+This example application shows how to prompt the Gemini API to transcribe,
+translate, and summarize speech, including timestamps and emotion detection
+using [structured outputs](https://ai.google.dev/gemini-api/docs/structured-output).
+
+### Python
+
+    from google import genai
+    from google.genai import types
+
+    client = genai.Client()
+
+    YOUTUBE_URL = "https://www.youtube.com/watch?v=ku-N-eS1lgM"
+
+    def main():
+      prompt = """
+        Process the audio file and generate a detailed transcription.
+
+        Requirements:
+        1. Provide accurate timestamps for each segment (Format: MM:SS).
+        2. Detect the primary language of each segment.
+        3. If the segment is in a language different than English, also provide the English translation.
+        4. Identify the primary emotion of the speaker in this segment. You MUST choose exactly one of the following: Happy, Sad, Angry, Neutral.
+        5. Provide a brief summary of the entire audio at the beginning.
+      """
+
+      response = client.models.generate_content(
+        model="gemini-3.5-flash",
+        contents=[
+          types.Content(
+            parts=[
+              types.Part(
+                file_data=types.FileData(
+                  file_uri=YOUTUBE_URL
+                )
+              ),
+              types.Part(
+                text=prompt
+              )
+            ]
+          )
+        ],
+        config=types.GenerateContentConfig(
+          response_format={"text": {"mime_type": "application/json"}},
+          response_schema=types.Schema(
+            type=types.Type.OBJECT,
+            properties={
+              "summary": types.Schema(
+                type=types.Type.STRING,
+                description="A concise summary of the audio content.",
+              ),
+              "segments": types.Schema(
+                type=types.Type.ARRAY,
+                description="List of transcribed segments with timestamp.",
+                items=types.Schema(
+                  type=types.Type.OBJECT,
+                  properties={
+                    "timestamp": types.Schema(type=types.Type.STRING),
+                    "content": types.Schema(type=types.Type.STRING),
+                    "language": types.Schema(type=types.Type.STRING),
+                    "language_code": types.Schema(type=types.Type.STRING),
+                    "translation": types.Schema(type=types.Type.STRING),
+                    "emotion": types.Schema(
+                      type=types.Type.STRING,
+                      enum=["happy", "sad", "angry", "neutral"]
+                    ),
+                  },
+                  required=["timestamp", "content", "language", "language_code", "emotion"],
+                ),
+              ),
+            },
+            required=["summary", "segments"],
+          ),
+        ),
+      )
+
+      print(response.text)
+
+    if __name__ == "__main__":
+      main()
+
+### JavaScript
+
+    import {
+      GoogleGenAI,
+      Type
+    } from "@google/genai";
+
+    const ai = new GoogleGenAI({});
+
+    const YOUTUBE_URL = "https://www.youtube.com/watch?v=ku-N-eS1lgM";
+
+    async function main() {
+      const prompt = `
+          Process the audio file and generate a detailed transcription.
+
+          Requirements:
+          1. Provide accurate timestamps for each segment (Format: MM:SS).
+          2. Detect the primary language of each segment.
+          3. If the segment is in a language different than English, also provide the English translation.
+          4. Identify the primary emotion of the speaker in this segment. You MUST choose exactly one of the following: Happy, Sad, Angry, Neutral.
+          5. Provide a brief summary of the entire audio at the beginning.
+        `;
+
+      const Emotion = {
+        Happy: 'happy',
+        Sad: 'sad',
+        Angry: 'angry',
+        Neutral: 'neutral'
+      };
+
+      const response = await ai.models.generateContent({
+        model: "gemini-3.5-flash",
+        contents: {
+          parts: [
+            {
+              fileData: {
+                fileUri: YOUTUBE_URL,
+              },
+            },
+            {
+              text: prompt,
+            },
+          ],
+        },
+        config: {
+          responseFormat: { text: { mimeType: "application/json" } },
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              summary: {
+                type: Type.STRING,
+                description: "A concise summary of the audio content.",
+              },
+              segments: {
+                type: Type.ARRAY,
+                description: "List of transcribed segments with timestamp.",
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    timestamp: { type: Type.STRING },
+                    content: { type: Type.STRING },
+                    language: { type: Type.STRING },
+                    language_code: { type: Type.STRING },
+                    translation: { type: Type.STRING },
+                    emotion: {
+                      type: Type.STRING,
+                      enum: Object.values(Emotion)
+                    },
+                  },
+                  required: ["timestamp", "content", "language", "language_code", "emotion"],
+                },
+              },
+            },
+            required: ["summary", "segments"],
+          },
+        },
+      });
+      const json = JSON.parse(response.text);
+      console.log(json);
+    }
+
+    await main();
+
+### REST
+
+    curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent" \
+        -H "x-goog-api-key: $GEMINI_API_KEY" \
+        -H 'Content-Type: application/json' \
+        -X POST \
+        -d '{
+          "contents": [
+            {
+              "parts": [
+                {
+                  "file_data": {
+                    "file_uri": "https://www.youtube.com/watch?v=ku-N-eS1lgM",
+                    "mime_type": "video/mp4"
+                  }
+                },
+                {
+                  "text": "Process the audio file and generate a detailed transcription.\n\nRequirements:\n1. Provide accurate timestamps for each segment (Format: MM:SS).\n2. Detect the primary language of each segment.\n3. If the segment is in a language different than English, also provide the English translation.\n4. Identify the primary emotion of the speaker in this segment. You MUST choose exactly one of the following: Happy, Sad, Angry, Neutral.\n5. Provide a brief summary of the entire audio at the beginning."
+                }
+              ]
+            }
+          ],
+          "generation_config": {
+            "response_format": {"text": {"mime_type": "application/json"}},
+            "response_schema": {
+              "type": "OBJECT",
+              "properties": {
+                "summary": {
+                  "type": "STRING",
+                  "description": "A concise summary of the audio content."
+                },
+                "segments": {
+                  "type": "ARRAY",
+                  "description": "List of transcribed segments with timestamp.",
+                  "items": {
+                    "type": "OBJECT",
+                    "properties": {
+                      "timestamp": { "type": "STRING" },
+                      "content": { "type": "STRING" },
+                      "language": { "type": "STRING" },
+                      "language_code": { "type": "STRING" },
+                      "translation": { "type": "STRING" },
+                      "emotion": {
+                        "type": "STRING",
+                        "enum": ["happy", "sad", "angry", "neutral"]
+                      }
+                    },
+                    "required": ["timestamp", "content", "language", "language_code", "emotion"]
+                  }
+                }
+              },
+              "required": ["summary", "segments"]
+            }
+          }
+        }' 2> /dev/null > response.json
+
+    cat response.json
+    echo
+
+    jq ".candidates[].content.parts[].text" response.json
+
+You can prompt [AI Studio Build](https://aistudio.google.com/apps?e=0) to create
+an app just like
+[this example transcription app](https://aistudio.google.com/apps/bundled/echoscript)
+, with the click of a button.
+
+![A multilingual audio transcription Gemini app](https://ai.google.dev/static/gemini-api/docs/images/audio_understanding_demo.gif)
+
+## Input audio
+
+You can provide audio data to Gemini in the following ways:
+
+- [Upload an audio file](https://ai.google.dev/gemini-api/docs/audio#upload-audio) before making a request to `generateContent`.
+- [Pass inline audio data](https://ai.google.dev/gemini-api/docs/audio#inline-audio) with the request to `generateContent`.
+
+To learn about other file input methods, see the
+[File input methods](https://ai.google.dev/gemini-api/docs/file-input-methods) guide.
+
+### Upload an audio file
+
+You can use the [Files API](https://ai.google.dev/gemini-api/docs/files) to upload an audio file.
+Always use the Files API when the total request size (including the files, text
+prompt, system instructions, etc.) is larger than 20 MB.
+
+The following code uploads an audio file and then uses the file in a call to
+`generateContent`.
+
+### Python
+
+    from google import genai
+
+    client = genai.Client()
+
+    myfile = client.files.upload(file="path/to/sample.mp3")
+
+    response = client.models.generate_content(
+        model="gemini-3.5-flash", contents=["Describe this audio clip", myfile]
+    )
+
+    print(response.text)
+
+### JavaScript
+
+    import {
+      GoogleGenAI,
+      createUserContent,
+      createPartFromUri,
+    } from "@google/genai";
+
+    const ai = new GoogleGenAI({});
+
+    async function main() {
+      const myfile = await ai.files.upload({
+        file: "path/to/sample.mp3",
+        config: { mimeType: "audio/mp3" },
+      });
+
+      const response = await ai.models.generateContent({
+        model: "gemini-3.5-flash",
+        contents: createUserContent([
+          createPartFromUri(myfile.uri, myfile.mimeType),
+          "Describe this audio clip",
+        ]),
+      });
+      console.log(response.text);
+    }
+
+    await main();
+
+### Go
+
+    package main
+
+    import (
+      "context"
+      "fmt"
+      "os"
+      "google.golang.org/genai"
+    )
+
+    func main() {
+      ctx := context.Background()
+      client, err := genai.NewClient(ctx, nil)
+      if err != nil {
+          log.Fatal(err)
+      }
+
+      localAudioPath := "/path/to/sample.mp3"
+      uploadedFile, _ := client.Files.UploadFromPath(
+          ctx,
+          localAudioPath,
+          nil,
+      )
+
+      parts := []*genai.Part{
+          genai.NewPartFromText("Describe this audio clip"),
+          genai.NewPartFromURI(uploadedFile.URI, uploadedFile.MIMEType),
+      }
+      contents := []*genai.Content{
+          genai.NewContentFromParts(parts, genai.RoleUser),
+      }
+
+      result, _ := client.Models.GenerateContent(
+          ctx,
+          "gemini-3.5-flash",
+          contents,
+          nil,
+      )
+
+      fmt.Println(result.Text())
+    }
+
+### REST
+
+    AUDIO_PATH="path/to/sample.mp3"
+    MIME_TYPE=$(file -b --mime-type "${AUDIO_PATH}")
+    NUM_BYTES=$(wc -c < "${AUDIO_PATH}")
+    DISPLAY_NAME=AUDIO
+
+    tmp_header_file=upload-header.tmp
+
+    # Initial resumable request defining metadata.
+    # The upload url is in the response headers dump them to a file.
+    curl "https://generativelanguage.googleapis.com/upload/v1beta/files" \
+      -H "x-goog-api-key: $GEMINI_API_KEY" \
+      -D upload-header.tmp \
+      -H "X-Goog-Upload-Protocol: resumable" \
+      -H "X-Goog-Upload-Command: start" \
+      -H "X-Goog-Upload-Header-Content-Length: ${NUM_BYTES}" \
+      -H "X-Goog-Upload-Header-Content-Type: ${MIME_TYPE}" \
+      -H "Content-Type: application/json" \
+      -d "{'file': {'display_name': '${DISPLAY_NAME}'}}" 2> /dev/null
+
+    upload_url=$(grep -i "x-goog-upload-url: " "${tmp_header_file}" | cut -d" " -f2 | tr -d "\r")
+    rm "${tmp_header_file}"
+
+    # Upload the actual bytes.
+    curl "${upload_url}" \
+      -H "Content-Length: ${NUM_BYTES}" \
+      -H "X-Goog-Upload-Offset: 0" \
+      -H "X-Goog-Upload-Command: upload, finalize" \
+      --data-binary "@${AUDIO_PATH}" 2> /dev/null > file_info.json
+
+    file_uri=$(jq ".file.uri" file_info.json)
+    echo file_uri=$file_uri
+
+    # Now generate content using that file
+    curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent" \
+        -H "x-goog-api-key: $GEMINI_API_KEY" \
+        -H 'Content-Type: application/json' \
+        -X POST \
+        -d '{
+          "contents": [{
+            "parts":[
+              {"text": "Describe this audio clip"},
+              {"file_data":{"mime_type": "${MIME_TYPE}", "file_uri": '$file_uri'}}]
+            }]
+          }' 2> /dev/null > response.json
+
+    cat response.json
+    echo
+
+    jq ".candidates[].content.parts[].text" response.json
+
+To learn more about working with media files, see
+[Files API](https://ai.google.dev/gemini-api/docs/files).
+
+### Pass audio data inline
+
+Instead of uploading an audio file, you can pass inline audio data in the
+request to `generateContent`:
+
+### Python
+
+    from google import genai
+    from google.genai import types
+
+    with open('path/to/small-sample.mp3', 'rb') as f:
+        audio_bytes = f.read()
+
+    client = genai.Client()
+    response = client.models.generate_content(
+      model='gemini-3.5-flash',
+      contents=[
+        'Describe this audio clip',
+        types.Part.from_bytes(
+          data=audio_bytes,
+          mime_type='audio/mp3',
+        )
+      ]
+    )
+
+    print(response.text)
+
+### JavaScript
+
+    import { GoogleGenAI } from "@google/genai";
+    import * as fs from "node:fs";
+
+    const ai = new GoogleGenAI({});
+    const base64AudioFile = fs.readFileSync("path/to/small-sample.mp3", {
+      encoding: "base64",
+    });
+
+    const contents = [
+      { text: "Please summarize the audio." },
+      {
+        inlineData: {
+          mimeType: "audio/mp3",
+          data: base64AudioFile,
+        },
+      },
+    ];
+
+    const response = await ai.models.generateContent({
+      model: "gemini-3.5-flash",
+      contents: contents,
+    });
+    console.log(response.text);
+
+### Go
+
+    package main
+
+    import (
+      "context"
+      "fmt"
+      "os"
+      "google.golang.org/genai"
+    )
+
+    func main() {
+      ctx := context.Background()
+      client, err := genai.NewClient(ctx, nil)
+      if err != nil {
+          log.Fatal(err)
+      }
+
+      audioBytes, _ := os.ReadFile("/path/to/small-sample.mp3")
+
+      parts := []*genai.Part{
+          genai.NewPartFromText("Describe this audio clip"),
+        &genai.Part{
+          InlineData: &genai.Blob{
+            MIMEType: "audio/mp3",
+            Data:     audioBytes,
+          },
+        },
+      }
+      contents := []*genai.Content{
+          genai.NewContentFromParts(parts, genai.RoleUser),
+      }
+
+      result, _ := client.Models.GenerateContent(
+          ctx,
+          "gemini-3.5-flash",
+          contents,
+          nil,
+      )
+
+      fmt.Println(result.Text())
+    }
+
+A few things to keep in mind about inline audio data:
+
+- The maximum request size is 20 MB, which includes text prompts, system instructions, and files provided inline. If your file's size will make the *total request size* exceed 20 MB, then use the Files API to [upload an audio file](https://ai.google.dev/gemini-api/docs/audio#upload-audio) for use in the request.
+- If you're using an audio sample multiple times, it's more efficient to [upload an audio file](https://ai.google.dev/gemini-api/docs/audio#upload-audio).
+
+## Get a transcript
+
+To get a transcript of audio data, just ask for it in the prompt:
+
+### Python
+
+    from google import genai
+
+    client = genai.Client()
+    myfile = client.files.upload(file='path/to/sample.mp3')
+    prompt = 'Generate a transcript of the speech.'
+
+    response = client.models.generate_content(
+      model='gemini-3.5-flash',
+      contents=[prompt, myfile]
+    )
+
+    print(response.text)
+
+### JavaScript
+
+    import {
+      GoogleGenAI,
+      createUserContent,
+      createPartFromUri,
+    } from "@google/genai";
+
+    const ai = new GoogleGenAI({});
+    const myfile = await ai.files.upload({
+      file: "path/to/sample.mp3",
+      config: { mimeType: "audio/mpeg" },
+    });
+
+    const result = await ai.models.generateContent({
+      model: "gemini-3.5-flash",
+      contents: createUserContent([
+        createPartFromUri(myfile.uri, myfile.mimeType),
+        "Generate a transcript of the speech.",
+      ]),
+    });
+    console.log("result.text=", result.text);
+
+### Go
+
+    package main
+
+    import (
+      "context"
+      "fmt"
+      "os"
+      "google.golang.org/genai"
+    )
+
+    func main() {
+      ctx := context.Background()
+      client, err := genai.NewClient(ctx, nil)
+      if err != nil {
+          log.Fatal(err)
+      }
+
+      localAudioPath := "/path/to/sample.mp3"
+      uploadedFile, _ := client.Files.UploadFromPath(
+          ctx,
+          localAudioPath,
+          nil,
+      )
+
+      parts := []*genai.Part{
+          genai.NewPartFromText("Generate a transcript of the speech."),
+          genai.NewPartFromURI(uploadedFile.URI, uploadedFile.MIMEType),
+      }
+      contents := []*genai.Content{
+          genai.NewContentFromParts(parts, genai.RoleUser),
+      }
+
+      result, _ := client.Models.GenerateContent(
+          ctx,
+          "gemini-3.5-flash",
+          contents,
+          nil,
+      )
+
+      fmt.Println(result.Text())
+    }
+
+## Refer to timestamps
+
+You can refer to specific sections of an audio file using timestamps of the form
+`MM:SS`. For example, the following prompt requests a transcript that
+
+- Starts at 2 minutes 30 seconds from the beginning of the file.
+- Ends at 3 minutes 29 seconds from the beginning of the file.
+
+### Python
+
+    # Create a prompt containing timestamps.
+    prompt = "Provide a transcript of the speech from 02:30 to 03:29."
+
+### JavaScript
+
+    // Create a prompt containing timestamps.
+    const prompt = "Provide a transcript of the speech from 02:30 to 03:29."
+
+### Go
+
+    package main
+
+    import (
+      "context"
+      "fmt"
+      "os"
+      "google.golang.org/genai"
+    )
+
+    func main() {
+      ctx := context.Background()
+      client, err := genai.NewClient(ctx, nil)
+      if err != nil {
+          log.Fatal(err)
+      }
+
+      localAudioPath := "/path/to/sample.mp3"
+      uploadedFile, _ := client.Files.UploadFromPath(
+          ctx,
+          localAudioPath,
+          nil,
+      )
+
+      parts := []*genai.Part{
+          genai.NewPartFromText("Provide a transcript of the speech " +
+                                "between the timestamps 02:30 and 03:29."),
+          genai.NewPartFromURI(uploadedFile.URI, uploadedFile.MIMEType),
+      }
+      contents := []*genai.Content{
+          genai.NewContentFromParts(parts, genai.RoleUser),
+      }
+
+      result, _ := client.Models.GenerateContent(
+          ctx,
+          "gemini-3.5-flash",
+          contents,
+          nil,
+      )
+
+      fmt.Println(result.Text())
+    }
+
+## Count tokens
+
+Call the `countTokens` method to get a count of the number of tokens in an
+audio file. For example:
+
+### Python
+
+    from google import genai
+
+    client = genai.Client()
+    response = client.models.count_tokens(
+      model='gemini-3.5-flash',
+      contents=[myfile]
+    )
+
+    print(response)
+
+### JavaScript
+
+    import {
+      GoogleGenAI,
+      createUserContent,
+      createPartFromUri,
+    } from "@google/genai";
+
+    const ai = new GoogleGenAI({});
+    const myfile = await ai.files.upload({
+      file: "path/to/sample.mp3",
+      config: { mimeType: "audio/mpeg" },
+    });
+
+    const countTokensResponse = await ai.models.countTokens({
+      model: "gemini-3.5-flash",
+      contents: createUserContent([
+        createPartFromUri(myfile.uri, myfile.mimeType),
+      ]),
+    });
+    console.log(countTokensResponse.totalTokens);
+
+### Go
+
+    package main
+
+    import (
+      "context"
+      "fmt"
+      "os"
+      "google.golang.org/genai"
+    )
+
+    func main() {
+      ctx := context.Background()
+      client, err := genai.NewClient(ctx, nil)
+      if err != nil {
+          log.Fatal(err)
+      }
+
+      localAudioPath := "/path/to/sample.mp3"
+      uploadedFile, _ := client.Files.UploadFromPath(
+          ctx,
+          localAudioPath,
+          nil,
+      )
+
+      parts := []*genai.Part{
+          genai.NewPartFromURI(uploadedFile.URI, uploadedFile.MIMEType),
+      }
+      contents := []*genai.Content{
+          genai.NewContentFromParts(parts, genai.RoleUser),
+      }
+
+      tokens, _ := client.Models.CountTokens(
+          ctx,
+          "gemini-3.5-flash",
+          contents,
+          nil,
+      )
+
+      fmt.Printf("File %s is %d tokens\n", localAudioPath, tokens.TotalTokens)
+    }
+
+## Supported audio formats
+
+Gemini supports the following audio format MIME types:
+
+- WAV - `audio/wav`
+- MP3 - `audio/mp3`
+- AIFF - `audio/aiff`
+- AAC - `audio/aac`
+- OGG Vorbis - `audio/ogg`
+- FLAC - `audio/flac`
+
+## Technical details about audio
+
+- Gemini represents each second of audio as 32 tokens; for example, one minute of audio is represented as 1,920 tokens.
+- Gemini can "understand" non-speech components, such as birdsong or sirens.
+- The maximum supported length of audio data in a single prompt is 9.5 hours. Gemini doesn't limit the *number* of audio files in a single prompt; however, the total combined length of all audio files in a single prompt can't exceed 9.5 hours.
+- Gemini downsamples audio files to a 16 Kbps data resolution.
+- If the audio source contains multiple channels, Gemini combines those channels into a single channel.
+
+## What's next
+
+This guide shows how to generate text in response to audio data. To learn more,
+see the following resources:
+
+- [File prompting strategies](https://ai.google.dev/gemini-api/docs/files#prompt-guide): The Gemini API supports prompting with text, image, audio, and video data, also known as multimodal prompting.
+- [System instructions](https://ai.google.dev/gemini-api/docs/text-generation#system-instructions): System instructions let you steer the behavior of the model based on your specific needs and use cases.
+- [Safety guidance](https://ai.google.dev/gemini-api/docs/safety-guidance): Sometimes generative AI models produce unexpected outputs, such as outputs that are inaccurate, biased, or offensive. Post-processing and human evaluation are essential to limit the risk of harm from such outputs.
+
+
+---
+
+Skip to content
+
+OpenRouter
+Search
+/
+May 2026
+Models
+Fusion
+Chat
+Rankings
+Apps
+Enterprise
+Pricing
+Docs
+Sign Up
+Favicon for openrouter
+Free Models Router
+openrouter/free
+
+Compare
+Playground
+The simplest way to get free inference. openrouter/free is a router that selects free models at random from the models available on OpenRouter. The router smartly filters for models that support features needed for your request such as image understanding, tool calling, structured outputs and more.
+
+Show more
+
+Models in this router
+24
+All free-variant models currently available on OpenRouter.
+Overview
+Activity
+API
+Sample code and API for Free Models Router
+OpenRouter normalizes requests and responses across providers for you.
+1
+Get your API key
+Create an API key from your OpenRouter dashboard and set it as an environment variable:
+
+Create API Key
+
+Copy
+export OPENROUTER_API_KEY=sk-or-v1-...
+2
+Make your first request
+Use openrouter/free with the OpenRouter API:
+
+OpenRouter supports reasoning-enabled models that can show their step-by-step thinking process. Use the reasoning parameter in your request to enable reasoning, and access the reasoning_details array in the response to see the model's internal reasoning before the final answer. When continuing a conversation, preserve the complete reasoning_details when passing messages back to the model so it can continue reasoning from where it left off. Learn more about reasoning tokens.
+
+In the examples below, the OpenRouter-specific headers are optional. Setting them allows your app to appear on the OpenRouter leaderboards.
+
+TypeScript SDK
+Python
+TypeScript (fetch)
+cURL
+Python (OpenAI)
+TypeScript (OpenAI)
+
+Copy
+import { OpenRouter } from "@openrouter/sdk";
+
+const openrouter = new OpenRouter({
+  apiKey: "<OPENROUTER_API_KEY>"
+});
+
+// Stream the response to get reasoning tokens in usage
+const stream = await openrouter.chat.send({
+  model: "openrouter/free",
+  messages: [
+    {
+      role: "user",
+      content: "How many r's are in the word 'strawberry'?"
+    }
+  ],
+  stream: true
+});
+
+let response = "";
+for await (const chunk of stream) {
+  const content = chunk.choices[0]?.delta?.content;
+  if (content) {
+    response += content;
+    process.stdout.write(content);
+  }
+
+  // Usage information comes in the final chunk
+  if (chunk.usage) {
+    console.log("\nReasoning tokens:", chunk.usage.reasoningTokens);
+  }
+}
+Using third-party SDKs
+For information about using third-party SDKs and frameworks with OpenRouter, please see our frameworks documentation.
+
+3
+Enable streaming
+Add "stream": true to your request body to receive responses as server-sent events:
+
+
+Copy
+curl -N https://openrouter.ai/api/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $OPENROUTER_API_KEY" \
+  -d '{
+  "model": "openrouter/free",
+  "stream": true,
+  "messages": [
+    {"role": "user", "content": "Hello"}
+  ]
+}'
+Endpoint
+Sends a request for a model response for the given chat conversation. Supports both streaming and non-streaming modes.
+
+POST
+https://openrouter.ai/api/v1/chat/completions
+Authorization
+Bearer $OPENROUTER_API_KEY
+Content-Type
+application/json
+HTTP-Referer
+optional — your site URL, for rankings
+X-Title
+optional — your site name, for rankings
+Model
+openrouter/free
+Creates a streaming or non-streaming response using the OpenAI Responses API format.
+
+Docs
+POST
+https://openrouter.ai/api/v1/responses
+Authorization
+Bearer $OPENROUTER_API_KEY
+Content-Type
+application/json
+HTTP-Referer
+optional — your site URL, for rankings
+X-Title
+optional — your site name, for rankings
+Model
+openrouter/free
+Creates a message using the Anthropic Messages API format. Supports text, images, PDFs, tools, and extended thinking.
+
+Docs
+POST
+https://openrouter.ai/api/v1/messages
+Authorization
+Bearer $OPENROUTER_API_KEY
+Content-Type
+application/json
+HTTP-Referer
+optional — your site URL, for rankings
+X-Title
+optional — your site name, for rankings
+Model
+openrouter/free
+More models from OpenRouter
+Owl Alpha
+Owl Alpha is a high-performance foundation model designed for agentic workloads. Natively supports tool use, and long-context tasks, with strong performance in code generation, automated workflows, and complex instruction execution. Compatible with Claude Code, OpenClaw, and other mainstream productivity tools.
+
+Note: Prompts and completions may be logged by the provider and used to improve the model.
+
+Pareto Code Router
+The Pareto Router maintains a tiered shortlist of strong coding models, ranked by Artificial Analysis coding percentiles. Set min_coding_score between 0 and 1 on the pareto-router plugin to control how strong a coder you need; higher scores select stronger (and typically more expensive) models. If you omit min_coding_score, the router defaults to the High tier.
+
+Selecting Nitro from the variant dropdown ranks the models in your tier by measured throughput and routes each request to the fastest one, so you trade some model variety for lower latency.
+
+Read the Pareto Router docs for the full selection logic, fallback behavior, and how to customize routing. For another way to route, see the Auto Router.
+
+Elephant Alpha
+Elephant Alpha is a 100B-parameter text model focused on intelligence efficiency, delivering strong performance while minimizing token usage. It supports a 256K context window with up to 32K output tokens, function calling, structured output, and prompt caching. It is particularly well-suited for code completion and debugging, rapid document processing, and lightweight agent interactions.
+
+Note: Prompts and completions may be logged by the provider and used to improve the model.
+
+Hunter Alpha
+Hunter Alpha is a 1 Trillion parameter + 1M token context frontier intelligence model built for agentic use. It excels at long-horizon planning, complex reasoning, and sustained multi-step task execution, with the reliability and instruction-following precision that frameworks like OpenClaw need.
+
+Note: All prompts and completions for this model are logged by the provider and may be used to improve the model.
+
+Healer Alpha
+Healer Alpha is a frontier omni-modal model with vision, hearing, reasoning, and action capabilities. It brings the full power of agentic intelligence into the real world: natively perceiving visual and audio inputs, reasoning across modalities, and executing complex multi-step tasks with precision and reliability.
+
+Note: All prompts and completions for this model are logged by the provider and may be used to improve the model.
+
+Aurora Alpha
+This is a cloaked model provided to the community to gather feedback. A reasoning model designed for speed. It is built for coding assistants, real-time conversational applications, and agentic workflows.
+
+Default reasoning effort is set to medium for fast responses. For agentic coding use cases, we recommend changing effort to high.
+
+Note: All prompts and completions for this model are logged by the provider and may be used to improve the model.
+
+Pony Alpha
+Pony is a cutting-edge foundation model with strong performance in coding, agentic workflows, reasoning, and roleplay, making it well suited for hands-on coding and real-world use.
+
+Note: All prompts and completions for this model are logged by the provider and may be used to improve the model.
+
+Body Builder
+Transform your natural language requests into structured OpenRouter API request objects. Describe what you want to accomplish with AI models, and Body Builder will construct the appropriate API calls. Example: "count to 10 using gemini and opus."
+
+This is useful for creating multi-model requests, custom model routers, or programmatic generation of API calls from human descriptions.
+
+BETA NOTICE: Body Builder is in beta, and currently free. Pricing and functionality may change in the future.
+
+Bert-Nebulon Alpha
+This model was an early testing version of Mistral Large 3. Try the official launch of Mistral Large 3 here
+
+This is a cloaked model provided to the community to gather feedback. A general-purpose multimodal model (text/image in, text out) designed for reliability, long-context comprehension, and adaptive logic. It is engineered for production-grade assistants, retrieval-augmented systems, science workloads, and complex agentic workflows.
+
+Note: All prompts and completions for this model are logged by the provider and may be used to improve the model.
+
+Sherlock Dash Alpha
+This model was an early snapshot of Grok 4.1 Fast with reasoning disabled. Try the official launch of Grok 4.1 Fast here
+
+This is a cloaked model provided to the community to gather feedback. A frontier non-reasoning model that excels at tool calling, with a 1.8M context window and multimodal support.
+
+Note: All prompts and completions for this model are logged by the provider and may be used to improve the model.
+
+Sherlock Think Alpha
+This model was an early snapshot of Grok 4.1 Fast with reasoning enabled. Try the official launch of Grok 4.1 Fast here
+
+This is a cloaked model provided to the community to gather feedback. A frontier reasoning model that excels at tool calling, with a 1.8M context window and multimodal support.
+
+Note: All prompts and completions for this model are logged by the provider and may be used to improve the model.
+
+Polaris Alpha
+This model was an early snapshot of GPT-5.1 with reasoning effort set to minimal. Try the official launch of GPT-5.1 here
+
+This is a cloaked model provided to the community to gather feedback. A powerful, general-purpose model that excels across real-world tasks, with standout performance in coding, tool calling, and instruction following.
+
+Note: All prompts and completions for this model are logged by the provider and may be used to improve the model.
+
+Andromeda Alpha
+This model has been revealed as NVIDIA Nemotron Nano 2 VL. It continues to be offered for free by NVIDIA here.
+
+This is a small reasoning VLM trained for image understanding. It's strengths include multi-image comprehension (6+ images), especially those containing charts and text. This is a cloaked model provided to the community to gather feedback.
+
+Note: All prompts and output are logged to improve the provider’s model and its product and services. Please do not upload any personal, confidential, or otherwise sensitive information. This is a trial use only. Do not use for production or business-critical systems.
+
+Sonoma Dusk Alpha
+This is a cloaked model provided to the community to gather feedback. A fast and intelligent general-purpose frontier model with a 2 million token context window. Supports image inputs and parallel tool calling.
+
+Note: It’s free to use during this testing period, and prompts and completions are logged by the model creator for feedback and training.
+
+Sonoma Sky Alpha
+This is a cloaked model provided to the community to gather feedback. A maximally intelligent general-purpose frontier model with a 2 million token context window. Supports image inputs and parallel tool calling.
+
+Note: It’s free to use during this testing period, and prompts and completions are logged by the model creator for feedback and training.
+
+Horizon Beta
+This is a cloaked model provided to the community to gather feedback. This is an improved version of Horizon Alpha
+
+Note: It’s free to use during this testing period, and prompts and completions are logged by the model creator for feedback and training.
+
+Horizon Alpha
+This was a cloaked model provided to the community to gather feedback. It has been deprecated - see Horizon Beta.
+
+Note: It’s free to use during this testing period, and prompts and completions are logged by the model creator for feedback and training.
+
+Cypher Alpha
+This is a cloaked model provided to the community to gather feedback. It's an all-purpose model supporting real-world, long-context tasks including code generation.
+
+Note: All prompts and completions for this model are logged by the provider and may be used to improve the model and other products and services. You remain responsible for any required end user notices and consents and for ensuring that no personal, confidential, or otherwise sensitive information, including data from individuals under the age of 18, is submitted.
+
+Optimus Alpha
+This is a cloaked model provided to the community to gather feedback. It's geared toward real world use cases, including programming.
+
+Note: All prompts and completions for this model are logged by the provider and may be used to improve the model.
+
+Quasar Alpha
+This is a cloaked model provided to the community to gather feedback. It’s a powerful, all-purpose model supporting long-context tasks, including code generation.
+
+Note: All prompts and completions for this model are logged by the provider  and may be used to improve the model.
+
+Cinematika 7B
+This model is under development. Check the OpenRouter Discord for updates.
+
+Auto Router
+Your prompt will be processed by a meta-model and routed to one of dozens of models (see below), optimizing for the best possible output.
+
+To see which model was used, visit Activity, or read the model attribute of the response. Your response will be priced at the same rate as the routed model.
+
+Learn more, including how to customize the models for routing, in our docs. For another way to route, see Pareto Code.
+
+Previous slideNext slide
+© 2026 OpenRouter, Inc
+Product
+Chat
+Rankings
+Apps
+Models
+Providers
+Pricing
+Enterprise
+Labs
+Company
+About
+Announcements
+Careers
+Hiring
+Privacy
+Terms of Service
+Support
+State of AI
+Works With OR
+Data
+Developer
+Documentation
+API Reference
+SDK
+Status
+Connect
+Discord
+GitHub
+LinkedIn
+X
+YouTube
+Free Models Router – API Quickstart | OpenRouter
+27
+
+
+---
+
+Skip to content
+
+OpenRouter
+Search
+/
+May 2026
+Models
+Fusion
+Chat
+Rankings
+Apps
+Enterprise
+Pricing
+Docs
+Sign Up
+Favicon for nvidia
+NVIDIA: Nemotron 3 Nano Omni (free)
+nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free
+
+Compare
+Playground
+NVIDIA Nemotron™ 3 Nano Omni is a 30B-A3B open multimodal model designed to function as a perception and context sub-agent in enterprise agent systems. It accepts text, image, video, and audio inputs and produces text output, enabling agents to perceive and reason across modalities in a single inference loop.
+
+Built on a hybrid MoE Transformer-Mamba architecture with Conv3D video layers and Efficient Video Sampling (EVS), it delivers approximately 2× higher throughput and 2.5× lower compute for video reasoning versus separate vision + speech pipelines. It supports up to 300K context length and a 16,384 reasoning budget, with extended thinking enabled via reasoning.enabled on OpenRouter.
+
+Show less
+Modalities
+
+Price
+
+Free
+
+Context
+
+256K
+
+Weekly Tokens
+
+20.5B
+
+Released
+
+Apr 28, 2026
+
+Overview
+Providers
+Performance
+Pricing
+Apps
+Activity
+Uptime
+API
+Sample code and API for Nemotron 3 Nano Omni (free)
+OpenRouter normalizes requests and responses across providers for you.
+1
+Get your API key
+Create an API key from your OpenRouter dashboard and set it as an environment variable:
+
+Create API Key
+
+Copy
+export OPENROUTER_API_KEY=sk-or-v1-...
+2
+Make your first request
+Use nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free with the OpenRouter API:
+
+OpenRouter supports reasoning-enabled models that can show their step-by-step thinking process. Use the reasoning parameter in your request to enable reasoning, and access the reasoning_details array in the response to see the model's internal reasoning before the final answer. When continuing a conversation, preserve the complete reasoning_details when passing messages back to the model so it can continue reasoning from where it left off. Learn more about reasoning tokens.
+
+In the examples below, the OpenRouter-specific headers are optional. Setting them allows your app to appear on the OpenRouter leaderboards.
+
+TypeScript SDK
+Python
+TypeScript (fetch)
+cURL
+Python (OpenAI)
+TypeScript (OpenAI)
+
+Copy
+import { OpenRouter } from "@openrouter/sdk";
+
+const openrouter = new OpenRouter({
+  apiKey: "<OPENROUTER_API_KEY>"
+});
+
+// Stream the response to get reasoning tokens in usage
+const stream = await openrouter.chat.send({
+  model: "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+  messages: [
+    {
+      role: "user",
+      content: "How many r's are in the word 'strawberry'?"
+    }
+  ],
+  stream: true
+});
+
+let response = "";
+for await (const chunk of stream) {
+  const content = chunk.choices[0]?.delta?.content;
+  if (content) {
+    response += content;
+    process.stdout.write(content);
+  }
+
+  // Usage information comes in the final chunk
+  if (chunk.usage) {
+    console.log("\nReasoning tokens:", chunk.usage.reasoningTokens);
+  }
+}
+Using third-party SDKs
+For information about using third-party SDKs and frameworks with OpenRouter, please see our frameworks documentation.
+
+3
+Enable streaming
+Add "stream": true to your request body to receive responses as server-sent events:
+
+
+Copy
+curl -N https://openrouter.ai/api/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $OPENROUTER_API_KEY" \
+  -d '{
+  "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+  "stream": true,
+  "messages": [
+    {"role": "user", "content": "Hello"}
+  ]
+}'
+Endpoint
+Sends a request for a model response for the given chat conversation. Supports both streaming and non-streaming modes.
+
+POST
+https://openrouter.ai/api/v1/chat/completions
+Authorization
+Bearer $OPENROUTER_API_KEY
+Content-Type
+application/json
+HTTP-Referer
+optional — your site URL, for rankings
+X-Title
+optional — your site name, for rankings
+Model
+nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free
+Creates a streaming or non-streaming response using the OpenAI Responses API format.
+
+Docs
+POST
+https://openrouter.ai/api/v1/responses
+Authorization
+Bearer $OPENROUTER_API_KEY
+Content-Type
+application/json
+HTTP-Referer
+optional — your site URL, for rankings
+X-Title
+optional — your site name, for rankings
+Model
+nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free
+Creates a message using the Anthropic Messages API format. Supports text, images, PDFs, tools, and extended thinking.
+
+Docs
+POST
+https://openrouter.ai/api/v1/messages
+Authorization
+Bearer $OPENROUTER_API_KEY
+Content-Type
+application/json
+HTTP-Referer
+optional — your site URL, for rankings
+X-Title
+optional — your site name, for rankings
+Model
+nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free
+Parameters
+Name	Type	Default	Description
+reasoning	map	—	Controls reasoning behavior for models that support thinking tokens, including whether reasoning is enabled, the reasoning effort, maximum reasoning tokens, and whether reasoning is excluded from the response.
+temperature	float	1	This setting influences the variety in the model's responses.
+max_tokens	integer	—	This sets the upper limit for the number of tokens the model can generate in response.
+seed	integer	—	If specified, the inferencing will sample deterministically, such that repeated requests with the same seed and parameters should return the same result.
+top_p	float	1	This setting limits the model's choices to a percentage of likely tokens: only the top tokens whose probabilities add up to P.
+tool_choice	string or object	—	Controls which (if any) tool is called by the model.
+tools	array	—	Tool calling parameter, following OpenAI's tool calling request shape.
+
+More models from Nvidia
+Parakeet TDT 0.6B v3
+Parakeet TDT 0.6B v3 is NVIDIA's 600M-parameter multilingual speech-to-text model built on the FastConformer-TDT architecture. Trained on the Granary dataset (670,000+ hours of audio), it supports automatic language detection across all official EU languages and achieves a 6.34% average word error rate on the HuggingFace Open ASR Leaderboard. Returns transcribed text with punctuation and segment timestamps.
+
+Nemotron 3 Nano Omni
+NVIDIA Nemotron™ 3 Nano Omni is a 30B-A3B open multimodal model designed to function as a perception and context sub-agent in enterprise agent systems. It accepts text, image, video, and audio inputs and produces text output, enabling agents to perceive and reason across modalities in a single inference loop.
+
+Built on a hybrid MoE Transformer-Mamba architecture with Conv3D video layers and Efficient Video Sampling (EVS), it delivers approximately 2× higher throughput and 2.5× lower compute for video reasoning versus separate vision + speech pipelines. It supports up to 300K context length and a 16,384 reasoning budget, with extended thinking enabled via reasoning.enabled on OpenRouter.
+
+Nemotron 3 Super
+NVIDIA Nemotron 3 Super is a 120B-parameter open hybrid MoE model, activating just 12B parameters for maximum compute efficiency and accuracy in complex multi-agent applications. Built on a hybrid Mamba-Transformer Mixture-of-Experts architecture with multi-token prediction (MTP), it delivers over 50% higher token generation compared to leading open models.
+
+The model features a 1M token context window for long-term agent coherence, cross-document reasoning, and multi-step task planning. Latent MoE enables calling 4 experts for the inference cost of only one, improving intelligence and generalization. Multi-environment RL training across 10+ environments delivers leading accuracy on benchmarks including AIME 2025, TerminalBench, and SWE-Bench Verified.
+
+Fully open with weights, datasets, and recipes under the NVIDIA Open License, Nemotron 3 Super allows easy customization and secure deployment anywhere — from workstation to cloud.
+
+Nemotron 3 Super
+NVIDIA Nemotron 3 Super is a 120B-parameter open hybrid MoE model, activating just 12B parameters for maximum compute efficiency and accuracy in complex multi-agent applications. Built on a hybrid Mamba-Transformer Mixture-of-Experts architecture with multi-token prediction (MTP), it delivers over 50% higher token generation compared to leading open models.
+
+The model features a 1M token context window for long-term agent coherence, cross-document reasoning, and multi-step task planning. Latent MoE enables calling 4 experts for the inference cost of only one, improving intelligence and generalization. Multi-environment RL training across 10+ environments delivers leading accuracy on benchmarks including AIME 2025, TerminalBench, and SWE-Bench Verified.
+
+Fully open with weights, datasets, and recipes under the NVIDIA Open License, Nemotron 3 Super allows easy customization and secure deployment anywhere — from workstation to cloud.
+
+Llama Nemotron Embed VL 1B V2
+The Llama Nemotron Embed VL 1B V2 embedding model is optimized for multimodal question-answering retrieval. The model can embed 'documents' in the form of image, text, or image and text combined. Documents can be retrieved given a user query in text form. The model supports images containing text, tables, charts, and infographics.
+
+Nemotron 3 Nano 30B A3B
+NVIDIA Nemotron 3 Nano 30B A3B is a small language MoE model with highest compute efficiency and accuracy for developers to build specialized agentic AI systems.
+
+The model is fully open with open-weights, datasets and recipes so developers can easily
+customize, optimize, and deploy the model on their infrastructure for maximum privacy and
+security.
+
+Nemotron 3 Nano 30B A3B
+NVIDIA Nemotron 3 Nano 30B A3B is a small language MoE model with highest compute efficiency and accuracy for developers to build specialized agentic AI systems.
+
+The model is fully open with open-weights, datasets and recipes so developers can easily
+customize, optimize, and deploy the model on their infrastructure for maximum privacy and
+security.
+
+Nemotron Nano 12B 2 VL
+NVIDIA Nemotron Nano 2 VL is a 12-billion-parameter open multimodal reasoning model designed for video understanding and document intelligence. It introduces a hybrid Transformer-Mamba architecture, combining transformer-level accuracy with Mamba’s memory-efficient sequence modeling for significantly higher throughput and lower latency.
+
+The model supports inputs of text and multi-image documents, producing natural-language outputs. It is trained on high-quality NVIDIA-curated synthetic datasets optimized for optical-character recognition, chart reasoning, and multimodal comprehension.
+
+Nemotron Nano 2 VL achieves leading results on OCRBench v2 and scores ≈ 74 average across MMMU, MathVista, AI2D, OCRBench, OCR-Reasoning, ChartQA, DocVQA, and Video-MME—surpassing prior open VL baselines. With Efficient Video Sampling (EVS), it handles long-form videos while reducing inference cost.
+
+Open-weights, training data, and fine-tuning recipes are released under a permissive NVIDIA open license, with deployment supported across NeMo, NIM, and major inference runtimes.
+
+Llama 3.3 Nemotron Super 49B V1.5
+Llama-3.3-Nemotron-Super-49B-v1.5 is a 49B-parameter, English-centric reasoning/chat model derived from Meta’s Llama-3.3-70B-Instruct with a 128K context. It’s post-trained for agentic workflows (RAG, tool calling) via SFT across math, code, science, and multi-turn chat, followed by multiple RL stages; Reward-aware Preference Optimization (RPO) for alignment, RL with Verifiable Rewards (RLVR) for step-wise reasoning, and iterative DPO to refine tool-use behavior. A distillation-driven Neural Architecture Search (“Puzzle”) replaces some attention blocks and varies FFN widths to shrink memory footprint and improve throughput, enabling single-GPU (H100/H200) deployment while preserving instruction following and CoT quality.
+
+In internal evaluations (NeMo-Skills, up to 16 runs, temp = 0.6, top_p = 0.95), the model reports strong reasoning/coding results, e.g., MATH500 pass@1 = 97.4, AIME-2024 = 87.5, AIME-2025 = 82.71, GPQA = 71.97, LiveCodeBench (24.10–25.02) = 73.58, and MMLU-Pro (CoT) = 79.53. The model targets practical inference efficiency (high tokens/s, reduced VRAM) with Transformers/vLLM support and explicit “reasoning on/off” modes (chat-first defaults, greedy recommended when disabled). Suitable for building agents, assistants, and long-context retrieval systems where balanced accuracy-to-cost and reliable tool use matter.
+
+Nemotron Nano 9B V2
+NVIDIA-Nemotron-Nano-9B-v2 is a large language model (LLM) trained from scratch by NVIDIA, and designed as a unified model for both reasoning and non-reasoning tasks. It responds to user queries and tasks by first generating a reasoning trace and then concluding with a final response.
+
+The model's reasoning capabilities can be controlled via a system prompt. If the user prefers the model to provide its final answer without intermediate reasoning traces, it can be configured to do so.
+
+Nemotron Nano 9B V2
+NVIDIA-Nemotron-Nano-9B-v2 is a large language model (LLM) trained from scratch by NVIDIA, and designed as a unified model for both reasoning and non-reasoning tasks. It responds to user queries and tasks by first generating a reasoning trace and then concluding with a final response.
+
+The model's reasoning capabilities can be controlled via a system prompt. If the user prefers the model to provide its final answer without intermediate reasoning traces, it can be configured to do so.
+
+Llama 3.1 Nemotron Nano 8B v1
+Llama-3.1-Nemotron-Nano-8B-v1 is a compact large language model (LLM) derived from Meta's Llama-3.1-8B-Instruct, specifically optimized for reasoning tasks, conversational interactions, retrieval-augmented generation (RAG), and tool-calling applications. It balances accuracy and efficiency, fitting comfortably onto a single consumer-grade RTX GPU for local deployment. The model supports extended context lengths of up to 128K tokens.
+
+Note: you must include detailed thinking on in the system prompt to enable reasoning. Please see Usage Recommendations for more.
+
+Llama 3.3 Nemotron Super 49B v1
+Llama-3.3-Nemotron-Super-49B-v1 is a large language model (LLM) optimized for advanced reasoning, conversational interactions, retrieval-augmented generation (RAG), and tool-calling tasks. Derived from Meta's Llama-3.3-70B-Instruct, it employs a Neural Architecture Search (NAS) approach, significantly enhancing efficiency and reducing memory requirements. This allows the model to support a context length of up to 128K tokens and fit efficiently on single high-performance GPUs, such as NVIDIA H200.
+
+Note: you must include detailed thinking on in the system prompt to enable reasoning. Please see Usage Recommendations for more.
+
+Llama 3.1 Nemotron Ultra 253B v1
+Llama-3.1-Nemotron-Ultra-253B-v1 is a large language model (LLM) optimized for advanced reasoning, human-interactive chat, retrieval-augmented generation (RAG), and tool-calling tasks. Derived from Meta’s Llama-3.1-405B-Instruct, it has been significantly customized using Neural Architecture Search (NAS), resulting in enhanced efficiency, reduced memory usage, and improved inference latency. The model supports a context length of up to 128K tokens and can operate efficiently on an 8x NVIDIA H100 node.
+
+Note: you must include detailed thinking on in the system prompt to enable reasoning. Please see Usage Recommendations for more.
+
+Llama 3.1 Nemotron 70B Instruct
+NVIDIA's Llama 3.1 Nemotron 70B is a language model designed for generating precise and useful responses. Leveraging Llama 3.1 70B architecture and Reinforcement Learning from Human Feedback (RLHF), it excels in automatic alignment benchmarks. This model is tailored for applications requiring high accuracy in helpfulness and response generation, suitable for diverse user queries across multiple domains.
+
+Usage of this model is subject to Meta's Acceptable Use Policy.
+
+Nemotron-4 340B Instruct
+Nemotron-4-340B-Instruct is an English-language chat model optimized for synthetic data generation. This large language model (LLM) is a fine-tuned version of Nemotron-4-340B-Base, designed for single and multi-turn chat use-cases with a 4,096 token context length.
+
+The base model was pre-trained on 9 trillion tokens from diverse English texts, 50+ natural languages, and 40+ coding languages. The instruct model underwent additional alignment steps:
+
+The alignment process used approximately 20K human-annotated samples, while 98% of the data for fine-tuning was synthetically generated. Detailed information about the synthetic data generation pipeline is available in the technical report.
+
+Previous slideNext slide
+© 2026 OpenRouter, Inc
+Product
+Chat
+Rankings
+Apps
+Models
+Providers
+Pricing
+Enterprise
+Labs
+Company
+About
+Announcements
+Careers
+Hiring
+Privacy
+Terms of Service
+Support
+State of AI
+Works With OR
+Data
+Developer
+Documentation
+API Reference
+SDK
+Status
+Connect
+Discord
+GitHub
+LinkedIn
+X
+YouTube
+NVIDIA: Nemotron 3 Nano Omni (free) – API Quickstart | OpenRouter
+
+
+---
+
+
+Below for this Groq, use it for instances when the AI is unable to process the audio natively, then it has to use another model to convert it into text (lo, our have will have many fallbacks and alternatives -It'd be invisible now, ahaha):
+Groq
+
+Personal
+/
+
+Default Project
+Playground
+API Keys
+Dashboard
+Docs
+
+D
+
+Search
+K
+Docs
+API Reference
+Getting Started
+Overview
+Quickstart
+Models
+OpenAI Compatibility
+Rate Limits
+Templates
+API Reference
+Core Features
+Text Generation
+Speech to Text
+Text to Speech
+OCR and Image Recognition
+Reasoning
+Content Moderation
+Structured Outputs
+Prompt Caching
+Tools & Integrations
+Tool Use
+Integrations Catalog
+Coding with Groq
+Compound (Agentic AI)
+Overview
+Systems
+Use Cases
+Guides
+Prompting Guide
+Assistant Message Prefilling
+Service Tiers
+Service Tiers
+Performance Tier
+Flex Processing
+Batch Processing
+Advanced
+LoRA Inference
+Production Readiness
+Production Checklist
+Optimizing Latency
+Security Onboarding
+Prometheus Metrics
+Account and Console
+Spend Limits
+Projects
+Model Permissions
+Billing FAQs
+Your Data
+Developer Resources
+SDK Libraries
+Groq Badge
+Developer Community
+OpenBench
+Error Codes
+Changelog
+Legal
+Policies & Notices
+Speech to Text
+Copy page
+
+Groq API is designed to provide fast speech-to-text solution available, offering OpenAI-compatible endpoints that enable near-instant transcriptions and translations. With Groq API, you can integrate high-quality audio processing into your applications at speeds that rival human interaction.
+
+API Endpoints
+We support two endpoints:
+
+Endpoint	Usage	API Endpoint
+Transcriptions	Convert audio to text	https://api.groq.com/openai/v1/audio/transcriptions
+Translations	Translate audio to English text	https://api.groq.com/openai/v1/audio/translations
+Supported Models
+Model ID	Model	Supported Language(s)	Description
+whisper-large-v3-turbo
+
+Whisper Large V3 Turbo	Multilingual	A fine-tuned version of a pruned Whisper Large V3 designed for fast, multilingual transcription tasks.
+whisper-large-v3
+
+Whisper Large V3	Multilingual	Provides state-of-the-art performance with high accuracy for multilingual transcription and translation tasks.
+Which Whisper Model Should You Use?
+Having more choices is great, but let's try to avoid decision paralysis by breaking down the tradeoffs between models to find the one most suitable for your applications:
+
+If your application is error-sensitive and requires multilingual support, use 
+whisper-large-v3
+
+.
+If your application requires multilingual support and you need the best price for performance, use 
+whisper-large-v3-turbo
+
+.
+The following table breaks down the metrics for each model.
+
+Model	Cost Per Hour	Language Support	Transcription Support	Translation Support	Real-time Speed Factor	Word Error Rate
+whisper-large-v3
+
+$0.111	Multilingual	Yes	Yes	189	10.3%
+whisper-large-v3-turbo
+
+$0.04	Multilingual	Yes	No	216	12%
+Working with Audio Files
+Audio File Limitations
+Max File Size
+25 MB (free tier), 100MB (dev tier)
+
+Max Attachment File Size
+25 MB. If you need to process larger files, use the url parameter to specify a url to the file instead.
+
+Minimum File Length
+0.01 seconds
+
+Minimum Billed Length
+10 seconds. If you submit a request less than this, you will still be billed for 10 seconds.
+
+Supported File Types
+Either a URL or a direct file upload for flac, mp3, mp4, mpeg, mpga, m4a, ogg, wav, webm
+
+Single Audio Track
+Only the first track will be transcribed for files with multiple audio tracks. (e.g. dubbed video)
+
+Supported Response Formats
+json, verbose_json, text
+
+Supported Timestamp Granularities
+segment, word
+
+Audio Preprocessing
+Our speech-to-text models will downsample audio to 16KHz mono before transcribing, which is optimal for speech recognition. This preprocessing can be performed client-side if your original file is extremely large and you want to make it smaller without a loss in quality (without chunking, Groq API speech-to-text endpoints accept up to 25MB for free tier and 100MB for dev tier). For lower latency, convert your files to wav format. When reducing file size, we recommend FLAC for lossless compression.
+
+The following ffmpeg command can be used to reduce file size:
+
+shell
+
+ffmpeg \
+  -i <your file> \
+  -ar 16000 \
+  -ac 1 \
+  -map 0:a \
+  -c:a flac \
+  <output file name>.flac
+Working with Larger Audio Files
+For audio files that exceed our size limits or require more precise control over transcription, we recommend implementing audio chunking. This process involves:
+
+Breaking the audio into smaller, overlapping segments
+Processing each segment independently
+Combining the results while handling overlapping
+To learn more about this process and get code for your own implementation, see the complete audio chunking tutorial in our Groq API Cookbook.
+
+Using the API
+The following are request parameters you can use in your transcription and translation requests:
+
+Parameter	Type	Default	Description
+file	string	Required unless using url instead	The audio file object for direct upload to translate/transcribe.
+url	string	Required unless using file instead	The audio URL to translate/transcribe (supports Base64URL).
+language	string	Optional	The language of the input audio. Supplying the input language in ISO-639-1 (i.e. en, tr`) format will improve accuracy and latency.
+
+The translations endpoint only supports 'en' as a parameter option.
+model	string	Required	ID of the model to use.
+prompt	string	Optional	Prompt to guide the model's style or specify how to spell unfamiliar words. (limited to 224 tokens)
+response_format	string	json	Define the output response format.
+
+Set to verbose_json to receive timestamps for audio segments.
+
+Set to text to return a text response.
+temperature	float	0	The temperature between 0 and 1. For translations and transcriptions, we recommend the default value of 0.
+timestamp_granularities[]	array	segment	The timestamp granularities to populate for this transcription. response_format must be set verbose_json to use timestamp granularities.
+
+Either or both of word and segment are supported.
+
+segment returns full metadata and word returns only word, start, and end timestamps. To get both word-level timestamps and full segment metadata, include both values in the array.
+Example Usage of Transcription Endpoint
+The transcription endpoint allows you to transcribe spoken words in audio or video files.
+
+Python
+JavaScript
+curl
+The Groq SDK package can be installed using the following command:
+
+shell
+
+pip install groq
+The following code snippet demonstrates how to use Groq API to transcribe an audio file in Python:
+
+Python
+
+import os
+import json
+from groq import Groq
+
+# Initialize the Groq client
+client = Groq()
+
+# Specify the path to the audio file
+filename = os.path.dirname(__file__) + "/YOUR_AUDIO.wav" # Replace with your audio file!
+
+# Open the audio file
+with open(filename, "rb") as file:
+    # Create a transcription of the audio file
+    transcription = client.audio.transcriptions.create(
+      file=file, # Required audio file
+      model="whisper-large-v3-turbo", # Required model to use for transcription
+      prompt="Specify context or spelling",  # Optional
+      response_format="verbose_json",  # Optional
+      timestamp_granularities = ["word", "segment"], # Optional (must set response_format to "json" to use and can specify "word", "segment" (default), or both)
+      language="en",  # Optional
+      temperature=0.0  # Optional
+    )
+    # To print only the transcription text, you'd use print(transcription.text) (here we're printing the entire transcription object to access timestamps)
+    print(json.dumps(transcription, indent=2, default=str))
+Example Usage of Translation Endpoint
+The translation endpoint allows you to translate spoken words in audio or video files to English.
+
+Python
+JavaScript
+curl
+The Groq SDK package can be installed using the following command:
+
+shell
+
+pip install groq
+The following code snippet demonstrates how to use Groq API to translate an audio file in Python:
+
+Python
+
+import os
+from groq import Groq
+
+# Initialize the Groq client
+client = Groq()
+
+# Specify the path to the audio file
+filename = os.path.dirname(__file__) + "/sample_audio.m4a" # Replace with your audio file!
+
+# Open the audio file
+with open(filename, "rb") as file:
+    # Create a translation of the audio file
+    translation = client.audio.translations.create(
+      file=(filename, file.read()), # Required audio file
+      model="whisper-large-v3", # Required model to use for translation
+      prompt="Specify context or spelling",  # Optional
+      language="en", # Optional ('en' only)
+      response_format="json",  # Optional
+      temperature=0.0  # Optional
+    )
+    # Print the translation text
+    print(translation.text)
+Understanding Metadata Fields
+When working with Groq API, setting response_format to verbose_json outputs each segment of transcribed text with valuable metadata that helps us understand the quality and characteristics of our transcription, including avg_logprob, compression_ratio, and no_speech_prob.
+
+This information can help us with debugging any transcription issues. Let's examine what this metadata tells us using a real example:
+
+JSON
+
+{
+  "id": 8,
+  "seek": 3000,
+  "start": 43.92,
+  "end": 50.16,
+  "text": " document that the functional specification that you started to read through that isn't just the",
+  "tokens": [51061, 4166, 300, 264, 11745, 31256],
+  "temperature": 0,
+  "avg_logprob": -0.097569615,
+  "compression_ratio": 1.6637554,
+  "no_speech_prob": 0.012814695
+}
+As shown in the above example, we receive timing information as well as quality indicators. Let's gain a better understanding of what each field means:
+
+id:8: The 9th segment in the transcription (counting begins at 0)
+seek: Indicates where in the audio file this segment begins (3000 in this case)
+start and end timestamps: Tell us exactly when this segment occurs in the audio (43.92 to 50.16 seconds in our example)
+avg_logprob (Average Log Probability): -0.097569615 in our example indicates very high confidence. Values closer to 0 suggest better confidence, while more negative values (like -0.5 or lower) might indicate transcription issues.
+no_speech_prob (No Speech Probability): 0.0.012814695 is very low, suggesting this is definitely speech. Higher values (closer to 1) would indicate potential silence or non-speech audio.
+compression_ratio: 1.6637554 is a healthy value, indicating normal speech patterns. Unusual values (very high or low) might suggest issues with speech clarity or word boundaries.
+Using Metadata for Debugging
+When troubleshooting transcription issues, look for these patterns:
+
+Low Confidence Sections: If avg_logprob drops significantly (becomes more negative), check for background noise, multiple speakers talking simultaneously, unclear pronunciation, and strong accents. Consider cleaning up the audio in these sections or adjusting chunk sizes around problematic chunk boundaries.
+Non-Speech Detection: High no_speech_prob values might indicate silence periods that could be trimmed, background music or noise, or non-verbal sounds being misinterpreted as speech. Consider noise reduction when preprocessing.
+Unusual Speech Patterns: Unexpected compression_ratio values can reveal stuttering or word repetition, speaker talking unusually fast or slow, or audio quality issues affecting word separation.
+Quality Thresholds and Regular Monitoring
+We recommend setting acceptable ranges for each metadata value we reviewed above and flagging segments that fall outside these ranges to be able to identify and adjust preprocessing or chunking strategies for flagged sections.
+
+By understanding and monitoring these metadata values, you can significantly improve your transcription quality and quickly identify potential issues in your audio processing pipeline.
+
+Prompting Guidelines
+The prompt parameter (max 224 tokens) helps provide context and maintain a consistent output style. Unlike chat completion prompts, these prompts only guide style and context, not specific actions.
+
+Best Practices
+Provide relevant context about the audio content, such as the type of conversation, topic, or speakers involved.
+Use the same language as the language of the audio file.
+Steer the model's output by denoting proper spellings or emulate a specific writing style or tone.
+Keep the prompt concise and focused on stylistic guidance.
+We can't wait to see what you build! 🚀
+
+Was this page helpful?
+
+Yes
+
+No
+
+Suggest Edits
+On this page
+API Endpoints
+Supported Models
+Which Whisper Model Should You Use?
+Working with Audio Files
+Using the API
+Understanding Metadata Fields
+---
+description: Integrate Groq&#x27;s fast speech-to-text API for instant audio transcription and translation in your applications.
+title: Speech to Text - GroqDocs
+image: https://console.groq.com/og_cloudv5.jpg
+---
+
+# Speech to Text
+
+Groq API is designed to provide fast speech-to-text solution available, offering OpenAI-compatible endpoints that enable near-instant transcriptions and translations. With Groq API, you can integrate high-quality audio processing into your applications at speeds that rival human interaction.
+
+## [API Endpoints](#api-endpoints)
+
+We support two endpoints:
+
+| Endpoint       | Usage                           | API Endpoint                                        |
+| -------------- | ------------------------------- | --------------------------------------------------- |
+| Transcriptions | Convert audio to text           | https://api.groq.com/openai/v1/audio/transcriptions |
+| Translations   | Translate audio to English text | https://api.groq.com/openai/v1/audio/translations   |
+
+## [Supported Models](#supported-models)
+
+| Model ID               | Model                                                        | Supported Language(s) | Description                                                                                                    |
+| ---------------------- | ------------------------------------------------------------ | --------------------- | -------------------------------------------------------------------------------------------------------------- |
+| whisper-large-v3-turbo | [Whisper Large V3 Turbo](https://console.groq.com/docs/model/whisper-large-v3-turbo) | Multilingual          | A fine-tuned version of a pruned Whisper Large V3 designed for fast, multilingual transcription tasks.         |
+| whisper-large-v3       | [Whisper Large V3](https://console.groq.com/docs/model/whisper-large-v3)             | Multilingual          | Provides state-of-the-art performance with high accuracy for multilingual transcription and translation tasks. |
+
+## [Which Whisper Model Should You Use?](#which-whisper-model-should-you-use)
+
+Having more choices is great, but let's try to avoid decision paralysis by breaking down the tradeoffs between models to find the one most suitable for your applications:
+
+* If your application is error-sensitive and requires multilingual support, use  
+`whisper-large-v3`  
+.
+* If your application requires multilingual support and you need the best price for performance, use  
+`whisper-large-v3-turbo`  
+.
+
+The following table breaks down the metrics for each model.
+
+| Model                  | Cost Per Hour | Language Support | Transcription Support | Translation Support | Real-time Speed Factor | Word Error Rate |
+| ---------------------- | ------------- | ---------------- | --------------------- | ------------------- | ---------------------- | --------------- |
+| whisper-large-v3       | $0.111        | Multilingual     | Yes                   | Yes                 | 189                    | 10.3%           |
+| whisper-large-v3-turbo | $0.04         | Multilingual     | Yes                   | No                  | 216                    | 12%             |
+
+## [Working with Audio Files](#working-with-audio-files)
+
+### Audio File Limitations
+
+Max File Size
+
+25 MB (free tier), 100MB (dev tier)
+
+Max Attachment File Size
+
+25 MB. If you need to process larger files, use the `url` parameter to specify a url to the file instead.
+
+Minimum File Length
+
+0.01 seconds
+
+Minimum Billed Length
+
+10 seconds. If you submit a request less than this, you will still be billed for 10 seconds.
+
+Supported File Types
+
+Either a URL or a direct file upload for `flac`, `mp3`, `mp4`, `mpeg`, `mpga`, `m4a`, `ogg`, `wav`, `webm`
+
+Single Audio Track
+
+Only the first track will be transcribed for files with multiple audio tracks. (e.g. dubbed video)
+
+Supported Response Formats
+
+`json`, `verbose_json`, `text`
+
+Supported Timestamp Granularities
+
+`segment`, `word`
+
+### [Audio Preprocessing](#audio-preprocessing)
+
+Our speech-to-text models will downsample audio to 16KHz mono before transcribing, which is optimal for speech recognition. This preprocessing can be performed client-side if your original file is extremely large and you want to make it smaller without a loss in quality (without chunking, Groq API speech-to-text endpoints accept up to 25MB for free tier and 100MB for [dev tier](https://console.groq.com/settings/billing)). For lower latency, convert your files to `wav` format. When reducing file size, we recommend FLAC for lossless compression.
+
+The following `ffmpeg` command can be used to reduce file size:
+
+shell
+
+```
+ffmpeg \
+  -i <your file> \
+  -ar 16000 \
+  -ac 1 \
+  -map 0:a \
+  -c:a flac \
+  <output file name>.flac
+```
+
+### [Working with Larger Audio Files](#working-with-larger-audio-files)
+
+For audio files that exceed our size limits or require more precise control over transcription, we recommend implementing audio chunking. This process involves:
+
+1. Breaking the audio into smaller, overlapping segments
+2. Processing each segment independently
+3. Combining the results while handling overlapping
+
+[To learn more about this process and get code for your own implementation, see the complete audio chunking tutorial in our Groq API Cookbook. ](https://github.com/groq/groq-api-cookbook/tree/main/tutorials/audio-chunking)
+
+## [Using the API](#using-the-api)
+
+The following are request parameters you can use in your transcription and translation requests:
+
+| Parameter                    | Type   | Default                            | Description                                                                                                                                                                                                                                                                                                                                                                     |
+| ---------------------------- | ------ | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| file                         | string | Required unless using url instead  | The audio file object for direct upload to translate/transcribe.                                                                                                                                                                                                                                                                                                                |
+| url                          | string | Required unless using file instead | The audio URL to translate/transcribe (supports Base64URL).                                                                                                                                                                                                                                                                                                                     |
+| language                     | string | Optional                           | The language of the input audio. Supplying the input language in ISO-639-1 (i.e. en, tr\`) format will improve accuracy and latency.The translations endpoint only supports 'en' as a parameter option.                                                                                                                                                                         |
+| model                        | string | Required                           | ID of the model to use.                                                                                                                                                                                                                                                                                                                                                         |
+| prompt                       | string | Optional                           | Prompt to guide the model's style or specify how to spell unfamiliar words. (limited to 224 tokens)                                                                                                                                                                                                                                                                             |
+| response\_format             | string | json                               | Define the output response format.Set to verbose\_json to receive timestamps for audio segments.Set to text to return a text response.                                                                                                                                                                                                                                          |
+| temperature                  | float  | 0                                  | The temperature between 0 and 1\. For translations and transcriptions, we recommend the default value of 0.                                                                                                                                                                                                                                                                     |
+| timestamp\_granularities\[\] | array  | segment                            | The timestamp granularities to populate for this transcription. response\_format must be set verbose\_json to use timestamp granularities.Either or both of word and segment are supported. segment returns full metadata and word returns only word, start, and end timestamps. To get both word-level timestamps and full segment metadata, include both values in the array. |
+
+### [Example Usage of Transcription Endpoint](#example-usage-of-transcription-endpoint)
+
+The transcription endpoint allows you to transcribe spoken words in audio or video files.
+
+PythonJavaScriptcurl
+
+The Groq SDK package can be installed using the following command:
+
+shell
+
+```
+pip install groq
+```
+
+The following code snippet demonstrates how to use Groq API to transcribe an audio file in Python:
+
+Python
+
+```
+import os
+import json
+from groq import Groq
+
+# Initialize the Groq client
+client = Groq()
+
+# Specify the path to the audio file
+filename = os.path.dirname(__file__) + "/YOUR_AUDIO.wav" # Replace with your audio file!
+
+# Open the audio file
+with open(filename, "rb") as file:
+    # Create a transcription of the audio file
+    transcription = client.audio.transcriptions.create(
+      file=file, # Required audio file
+      model="whisper-large-v3-turbo", # Required model to use for transcription
+      prompt="Specify context or spelling",  # Optional
+      response_format="verbose_json",  # Optional
+      timestamp_granularities = ["word", "segment"], # Optional (must set response_format to "json" to use and can specify "word", "segment" (default), or both)
+      language="en",  # Optional
+      temperature=0.0  # Optional
+    )
+    # To print only the transcription text, you'd use print(transcription.text) (here we're printing the entire transcription object to access timestamps)
+    print(json.dumps(transcription, indent=2, default=str))
+```
+
+### [Example Usage of Translation Endpoint](#example-usage-of-translation-endpoint)
+
+The translation endpoint allows you to translate spoken words in audio or video files to English.
+
+PythonJavaScriptcurl
+
+The Groq SDK package can be installed using the following command:
+
+shell
+
+```
+pip install groq
+```
+
+The following code snippet demonstrates how to use Groq API to translate an audio file in Python:
+
+Python
+
+```
+import os
+from groq import Groq
+
+# Initialize the Groq client
+client = Groq()
+
+# Specify the path to the audio file
+filename = os.path.dirname(__file__) + "/sample_audio.m4a" # Replace with your audio file!
+
+# Open the audio file
+with open(filename, "rb") as file:
+    # Create a translation of the audio file
+    translation = client.audio.translations.create(
+      file=(filename, file.read()), # Required audio file
+      model="whisper-large-v3", # Required model to use for translation
+      prompt="Specify context or spelling",  # Optional
+      language="en", # Optional ('en' only)
+      response_format="json",  # Optional
+      temperature=0.0  # Optional
+    )
+    # Print the translation text
+    print(translation.text)
+```
+
+## [Understanding Metadata Fields](#understanding-metadata-fields)
+
+When working with Groq API, setting `response_format` to `verbose_json` outputs each segment of transcribed text with valuable metadata that helps us understand the quality and characteristics of our transcription, including `avg_logprob`, `compression_ratio`, and `no_speech_prob`.
+
+This information can help us with debugging any transcription issues. Let's examine what this metadata tells us using a real example:
+
+JSON
+
+```
+{
+  "id": 8,
+  "seek": 3000,
+  "start": 43.92,
+  "end": 50.16,
+  "text": " document that the functional specification that you started to read through that isn't just the",
+  "tokens": [51061, 4166, 300, 264, 11745, 31256],
+  "temperature": 0,
+  "avg_logprob": -0.097569615,
+  "compression_ratio": 1.6637554,
+  "no_speech_prob": 0.012814695
+}
+```
+
+As shown in the above example, we receive timing information as well as quality indicators. Let's gain a better understanding of what each field means:
+
+* `id:8`: The 9th segment in the transcription (counting begins at 0)
+* `seek`: Indicates where in the audio file this segment begins (3000 in this case)
+* `start` and `end` timestamps: Tell us exactly when this segment occurs in the audio (43.92 to 50.16 seconds in our example)
+* `avg_logprob` (Average Log Probability): -0.097569615 in our example indicates very high confidence. Values closer to 0 suggest better confidence, while more negative values (like -0.5 or lower) might indicate transcription issues.
+* `no_speech_prob` (No Speech Probability): 0.0.012814695 is very low, suggesting this is definitely speech. Higher values (closer to 1) would indicate potential silence or non-speech audio.
+* `compression_ratio`: 1.6637554 is a healthy value, indicating normal speech patterns. Unusual values (very high or low) might suggest issues with speech clarity or word boundaries.
+
+### [Using Metadata for Debugging](#using-metadata-for-debugging)
+
+When troubleshooting transcription issues, look for these patterns:
+
+* Low Confidence Sections: If `avg_logprob` drops significantly (becomes more negative), check for background noise, multiple speakers talking simultaneously, unclear pronunciation, and strong accents. Consider cleaning up the audio in these sections or adjusting chunk sizes around problematic chunk boundaries.
+* Non-Speech Detection: High `no_speech_prob` values might indicate silence periods that could be trimmed, background music or noise, or non-verbal sounds being misinterpreted as speech. Consider noise reduction when preprocessing.
+* Unusual Speech Patterns: Unexpected `compression_ratio` values can reveal stuttering or word repetition, speaker talking unusually fast or slow, or audio quality issues affecting word separation.
+
+### [Quality Thresholds and Regular Monitoring](#quality-thresholds-and-regular-monitoring)
+
+We recommend setting acceptable ranges for each metadata value we reviewed above and flagging segments that fall outside these ranges to be able to identify and adjust preprocessing or chunking strategies for flagged sections.
+
+By understanding and monitoring these metadata values, you can significantly improve your transcription quality and quickly identify potential issues in your audio processing pipeline.
+
+### [Prompting Guidelines](#prompting-guidelines)
+
+The prompt parameter (max 224 tokens) helps provide context and maintain a consistent output style. Unlike chat completion prompts, these prompts only guide style and context, not specific actions.
+
+Best Practices
+
+* Provide relevant context about the audio content, such as the type of conversation, topic, or speakers involved.
+* Use the same language as the language of the audio file.
+* Steer the model's output by denoting proper spellings or emulate a specific writing style or tone.
+* Keep the prompt concise and focused on stylistic guidance.
+
+We can't wait to see what you build! 🚀
+
+---
+
+Use this for images incase it fails for others, and in case video fails, use this to extract frames of 4 max (this will be rare) ut incase in order to have as many fallbacks as possible:
+---
+description: Learn how to use multimodal vision models on Groq for image understanding, OCR, and more.
+title: Images and Vision - GroqDocs
+image: https://console.groq.com/og_cloudv5.jpg
+---
+
+# Images and Vision
+
+Groq API offers fast inference and low latency for multimodal models with vision capabilities for understanding and interpreting visual data from images. By analyzing the content of an image, multimodal models can generate human-readable text for providing insights about given visual data.
+
+## [Supported Models](#supported-models)
+
+Groq API supports powerful multimodal models that can be easily integrated into your applications to provide fast and accurate image processing for tasks such as visual question answering, caption generation, and Optical Character Recognition (OCR).
+
+### [meta-llama/llama-4-scout-17b-16e-instruct](https://console.groq.com/docs/model/llama-4-scout-17b-16e-instruct)
+
+Model ID
+
+`meta-llama/llama-4-scout-17b-16e-instruct`
+
+Description
+
+A powerful multimodal model capable of processing both text and image inputs that supports multilingual, multi-turn conversations, tool use, and JSON mode.
+
+Context Window
+
+128K tokens
+
+Preview Model
+
+Currently in preview and should be used for experimentation.
+
+Image Size Limit
+
+Maximum allowed size for a request containing an image URL as input is 20MB. Requests larger than this limit will return a 400 error.
+
+Image Resolution Limit
+
+Maximum allowed resolution for a request containing images is 33 megapixels (33177600 total pixels) per image. Images larger than this limit will return a 400 error.
+
+Request Size Limit (Base64 Encoded Images)
+
+Maximum allowed size for a request containing a base64 encoded image is 4MB. Requests larger than this limit will return a 413 error.
+
+Images per Request
+
+You can process a maximum of 5 images.
+
+## [How to Use Vision](#how-to-use-vision)
+
+Use Groq API vision features via:
+
+* **GroqCloud Console Playground**: Use [Llama 4 Scout](https://console.groq.com/playground?model=meta-llama/llama-4-scout-17b-16e-instruct) as the model and upload your image.
+* **Groq API Request:** Call the [chat.completions](https://console.groq.com/docs/text-chat#generating-chat-completions-with-groq-sdk) API endpoint and set the model to  
+`meta-llama/llama-4-scout-17b-16e-instruct`  
+. See code examples below.
+  
+## [How to Pass Images from URLs as Input](#how-to-pass-images-from-urls-as-input)
+
+The following are code examples for passing your image to the model via a URL:
+
+curlJavaScriptPythonJSON
+
+Python
+
+```
+from groq import Groq
+import os
+
+client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+completion = client.chat.completions.create(
+    model="meta-llama/llama-4-scout-17b-16e-instruct",
+    messages=[
+        {
+            "role": "user",
+            "content": [
+                {
+                    "type": "text",
+                    "text": "What's in this image?"
+                },
+                {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": "https://upload.wikimedia.org/wikipedia/commons/f/f2/LPU-v1-die.jpg"
+                    }
+                }
+            ]
+        }
+    ],
+    temperature=1,
+    max_completion_tokens=1024,
+    top_p=1,
+    stream=False,
+    stop=None,
+)
+
+print(completion.choices[0].message)
+```
+
+  
+## [How to Pass Locally Saved Images as Input](#how-to-pass-locally-saved-images-as-input)
+
+To pass locally saved images, we'll need to first encode our image to a base64 format string before passing it as the `image_url` in our API request as follows:
+
+  
+Python
+
+```
+from groq import Groq
+import base64
+import os
+
+# Function to encode the image
+def encode_image(image_path):
+  with open(image_path, "rb") as image_file:
+    return base64.b64encode(image_file.read()).decode('utf-8')
+
+# Path to your image
+image_path = "sf.jpg"
+
+# Getting the base64 string
+base64_image = encode_image(image_path)
+
+client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+
+chat_completion = client.chat.completions.create(
+    messages=[
+        {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": "What's in this image?"},
+                {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/jpeg;base64,{base64_image}",
+                    },
+                },
+            ],
+        }
+    ],
+    model="meta-llama/llama-4-scout-17b-16e-instruct",
+)
+
+print(chat_completion.choices[0].message.content)
+```
+
+  
+## [Tool Use with Images](#tool-use-with-images)
+
+The `meta-llama/llama-4-scout-17b-16e-instruct` model supports tool use! The following cURL example defines a `get_current_weather` tool that the model can leverage to answer a user query that contains a question about the weather along with an image of a location that the model can infer location (i.e. New York City) from:
+
+  
+shell
+
+```
+curl https://api.groq.com/openai/v1/chat/completions -s \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer $GROQ_API_KEY" \
+-d '{
+"model": "meta-llama/llama-4-scout-17b-16e-instruct",
+"messages": [
+{
+    "role": "user",
+    "content": [{"type": "text", "text": "Whats the weather like in this state?"}, {"type": "image_url", "image_url": { "url": "https://cdn.britannica.com/61/93061-050-99147DCE/Statue-of-Liberty-Island-New-York-Bay.jpg"}}]
+}
+],
+"tools": [
+{
+    "type": "function",
+    "function": {
+    "name": "get_current_weather",
+    "description": "Get the current weather in a given location",
+    "parameters": {
+        "type": "object",
+        "properties": {
+        "location": {
+            "type": "string",
+            "description": "The city and state, e.g. San Francisco, CA"
+        },
+        "unit": {
+            "type": "string",
+            "enum": ["celsius", "fahrenheit"]
+        }
+        },
+        "required": ["location"]
+    }
+    }
+}
+],
+"tool_choice": "auto"
+}' | jq '.choices[0].message.tool_calls'
+```
+
+  
+The following is the output from our example above that shows how our model inferred the state as New York from the given image and called our example function:
+
+  
+Python
+
+```
+[
+  {
+    "id": "call_q0wg",
+    "function": {
+      "arguments": "{\"location\": \"New York, NY\",\"unit\": \"fahrenheit\"}",
+      "name": "get_current_weather"
+    },
+    "type": "function"
+  }
+]
+```
+
+  
+## [JSON Mode with Images](#json-mode-with-images)
+
+The `meta-llama/llama-4-scout-17b-16e-instruct` model supports JSON mode! The following Python example queries the model with an image and text (i.e. "Please pull out relevant information as a JSON object.") with `response_format`set for JSON mode:
+
+  
+Python
+
+```
+from groq import Groq
+import os
+
+client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+
+completion = client.chat.completions.create(
+    model="meta-llama/llama-4-scout-17b-16e-instruct",
+    messages=[
+        {
+            "role": "user",
+            "content": [
+                {
+                    "type": "text",
+                    "text": "List what you observe in this photo in JSON format."
+                },
+                {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": "https://upload.wikimedia.org/wikipedia/commons/d/da/SF_From_Marin_Highlands3.jpg"
+                    }
+                }
+            ]
+        }
+    ],
+    temperature=1,
+    max_completion_tokens=1024,
+    top_p=1,
+    stream=False,
+    response_format={"type": "json_object"},
+    stop=None,
+)
+
+print(completion.choices[0].message)
+```
+
+  
+## [Multi-turn Conversations with Images](#multiturn-conversations-with-images)
+
+The `meta-llama/llama-4-scout-17b-16e-instruct` model supports multi-turn conversations! The following Python example shows a multi-turn user conversation about an image:
+
+  
+Python
+
+```
+from groq import Groq
+import os
+
+client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+
+completion = client.chat.completions.create(
+    model="meta-llama/llama-4-scout-17b-16e-instruct",
+    messages=[
+        {
+            "role": "user",
+            "content": [
+                {
+                    "type": "text",
+                    "text": "What is in this image?"
+                },
+                {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": "https://upload.wikimedia.org/wikipedia/commons/d/da/SF_From_Marin_Highlands3.jpg"
+                    }
+                }
+            ]
+        },
+        {
+            "role": "user",
+            "content": "Tell me more about the area."
+        }
+    ],
+    temperature=1,
+    max_completion_tokens=1024,
+    top_p=1,
+    stream=False,
+    stop=None,
+)
+
+print(completion.choices[0].message)
+```
+
+  
+## [Venture Deeper into Vision](#venture-deeper-into-vision)
+
+### [Use Cases to Explore](#use-cases-to-explore)
+
+Vision models can be used in a wide range of applications. Here are some ideas:
+
+* **Accessibility Applications:** Develop an application that generates audio descriptions for images by using a vision model to generate text descriptions for images, which can then be converted to audio with one of our audio endpoints.
+* **E-commerce Product Description Generation:** Create an application that generates product descriptions for e-commerce websites.
+* **Multilingual Image Analysis:** Create applications that can describe images in multiple languages.
+* **Multi-turn Visual Conversations:** Develop interactive applications that allow users to have extended conversations about images.
+
+These are just a few ideas to get you started. The possibilities are endless, and we're excited to see what you create with vision models powered by Groq for low latency and fast inference!
+
+  
+### [Next Steps](#next-steps)
+
+Check out our [Groq API Cookbook](https://github.com/groq/groq-api-cookbook) repository on GitHub (and give us a ⭐) for practical examples and tutorials:
+
+* [Image Moderation](https://github.com/groq/groq-api-cookbook/blob/main/tutorials/image%5Fmoderation.ipynb)
+* [Multimodal Image Processing (Tool Use, JSON Mode)](https://github.com/groq/groq-api-cookbook/tree/main/tutorials/multimodal-image-processing)
+  
+We're always looking for contributions. If you have any cool tutorials or guides to share, submit a pull request for review to help our open-source community!
